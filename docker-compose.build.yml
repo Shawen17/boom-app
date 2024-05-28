@@ -7,6 +7,11 @@ services:
       dockerfile: Dockerfile
       args:
         - SECRET_KEY=${SECRET_KEY}
+        - HOST=${HOST}
+        - AUTH_PASSWORD=${AUTH_PASSWORD}
+        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+
 
   lendsqr:
     build:
