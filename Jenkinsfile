@@ -6,6 +6,16 @@ pipeline {
         GITHUB_USERNAME = 'shawen17'
         IMAGE_NAME = "ghcr.io/${GITHUB_USERNAME}"
         DOCKER_BUILDKIT = '1'
+        DB_USER=credentials('DB_USER')
+        PASSWORD=credentials('PASSWORD')
+        CLUSTERNAME=credentials('CLUSTERNAME')
+        SECRET_KEY=credentials('SECRET_KEY')
+        HOST=credentials('HOST')
+        AUTH_PASSWORD=credentials('AUTH_PASSWORD')
+        AWS_SECRET_ACCESS_KEY=credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_ACCESS_KEY_ID=credentials('AWS_ACCESS_KEY_ID')
+        REACT_APP_LENDSQR_API_URL=credentials('REACT_APP_LENDSQR_API_URL')
+        REACT_APP_MEDIA_URL=credentials('REACT_APP_MEDIA_URL')
     }
 
     stages {
@@ -20,24 +30,25 @@ pipeline {
                 stage('Build lendsqr_backend Image') {
                     steps {
                         script {
-                            bat 'docker-compose build lendsqr_backend'
+                            bat 'docker-compose -f docker-compose.build.yml build lendsqr_backend'
                         }
                     }
                 }
                 stage('Build lendsqr Image') {
                     steps {
                         script {
-                            bat 'docker-compose build lendsqr'
+                           bat 'docker-compose -f docker-compose.build.yml build lendsqr'
                         }
                     }
                 }
-                // Add more stages for additional services as needed
+                
             }
         }
 
         stage('Login to GHCR') {
             steps {
                 script {
+                    
                     bat "echo ${DOCKERHUB_CREDENTIALS} | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin"
                 }
             }
@@ -47,7 +58,8 @@ pipeline {
             steps {
                 script {
                     // Get the list of services from docker-compose file
-                    def services = bat(script: "docker-compose config --services", returnStdout: true).trim().split('\r?\n')
+                    // def services = bat(script: "docker-compose config --services", returnStdout: true).trim().split('\r?\n')
+                    def services = ['lendsqr_backend', 'lendsqr']
 
                     def parallelStages = [:]
 
@@ -61,6 +73,7 @@ pipeline {
 
                             // Push the image
                             bat "docker push ${fullImageName}"
+                            bat "echo ${fullImageName}"
                         }
                     }
 
@@ -68,6 +81,26 @@ pipeline {
                 }
             }
         }
+        // stage('Run Containers') {
+        //     steps {
+        //         script {
+        //             withEnv([
+        //                 "DB_USER=${DB_USER}",
+        //                 "PASSWORD=${PASSWORD}",
+        //                 "CLUSTERNAME=${CLUSTERNAME}",
+        //                 "SECRET_KEY=${SECRET_KEY}",
+        //                 "HOST=${HOST}",
+        //                 "AUTH_PASSWORD=${AUTH_PASSWORD}",
+        //                 "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}",
+        //                 "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}",
+        //                 "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
+        //                 "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}"
+        //             ]) {
+        //                 bat 'docker-compose -f docker-compose.run.yml up -d'
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     post {

@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  lendsqr_backend:
+    build:
+      context: ./lendsqr_backend
+      dockerfile: Dockerfile
+
+  lendsqr:
+    build:
+      context: ./lendsqr
+      dockerfile: Dockerfile

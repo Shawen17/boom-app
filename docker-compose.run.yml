@@ -1,16 +1,10 @@
 version: "3.8"
 
 services:
-
   lendsqr_backend:
-    image: lendsqr_backend_image
+    image: ${IMAGE_NAME}-lendsqr_backend:latest
     container_name: lendsqr_backend
-    build:
-      context: ./lendsqr_backend
-      dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
-    env_file:
-      - .env
     ports:
       - 8000:8000
     restart: always
@@ -20,13 +14,8 @@ services:
       - ./lendsqr_backend/media:/app/media
 
   lendsqr:
-    image: lendsqr_image
-    build:
-      context: ./lendsqr
-      dockerfile: Dockerfile
+    image: ${IMAGE_NAME}-lendsqr:latest
     command: yarn start 0.0.0.0:3000
-    # env_file:
-    #   - .env
     ports:
       - 3000:3000
     volumes:
