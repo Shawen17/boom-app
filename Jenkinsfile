@@ -74,7 +74,7 @@ pipeline {
                     services.each { service ->
                         parallelStages["Tag and Push ${service}"] = {
                             def imageId = bat(script: "docker-compose -f docker-compose.build.yml images -q ${service}", returnStdout: true).trim()
-                            bat 'echo imageId is %imageId%'
+                            bat "echo imageId is %imageId%"
                             def fullImageName = "${IMAGE_NAME}-${service}:latest"
                             bat "echo full imagename is  %fullImageName%"
                             // Tag the image
