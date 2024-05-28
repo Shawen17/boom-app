@@ -75,11 +75,11 @@ pipeline {
                         parallelStages["Tag and Push ${service}"] = {
                             script {
                                 def imageId = bat(script: "docker images -q boom-app-job-${service}", returnStdout: true).trim()
-                                echo "imageId is ${imageId}"
+                                // echo "imageId is ${imageId}"
 
                                 if (imageId) {
                                     def fullImageName = "${IMAGE_NAME}/boom-app-job-${service}:${env.BUILD_ID}"
-                                    echo "full imagename is ${fullImageName}"
+                                    // echo "full imagename is ${fullImageName}"
 
                                     // Tag the image
                                     bat "docker tag ${imageId} ${fullImageName}"
