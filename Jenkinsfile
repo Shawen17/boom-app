@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     
-                    bat "echo ${DOCKERHUB_CREDENTIALS} | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin"
+                    bat 'echo ${DOCKERHUB_CREDENTIALS} | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin'
                 }
             }
         }
@@ -73,7 +73,7 @@ pipeline {
 
                     services.each { service ->
                         parallelStages["Tag and Push ${service}"] = {
-                            def imageId = bat(script: "docker-compose images -q ${service}", returnStdout: true).trim()
+                            def imageId = bat(script: "docker-compose -f docker-compose.build.yml images -q ${service}", returnStdout: true).trim()
                             def fullImageName = "${IMAGE_NAME}-${service}:latest"
 
                             // Tag the image
