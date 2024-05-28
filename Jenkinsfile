@@ -111,6 +111,7 @@ pipeline {
         stage('Run Containers') {
             steps {
                 script {
+                    bat 'echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin'
                     withEnv([
                         "DB_USER=${DB_USER}",
                         "PASSWORD=${PASSWORD}",
