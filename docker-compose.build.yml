@@ -5,6 +5,8 @@ services:
     build:
       context: ./lendsqr_backend
       dockerfile: Dockerfile
+      args:
+        - SECRET_KEY=${SECRET_KEY}
 
   lendsqr:
     build:

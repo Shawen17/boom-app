@@ -30,7 +30,9 @@ pipeline {
                 stage('Build lendsqr_backend Image') {
                     steps {
                         script {
-                            bat 'docker-compose -f docker-compose.build.yml build lendsqr_backend'
+                            withEnv(["SECRET_KEY=${SECRET_KEY}"]){
+                                bat 'docker-compose -f docker-compose.build.yml build lendsqr_backend'
+                            }
                         }
                     }
                 }
