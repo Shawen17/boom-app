@@ -5,6 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('github-token') // ID of the secret text in Jenkins
         GITHUB_USERNAME = 'shawen17'
         IMAGE_NAME = "ghcr.io/${GITHUB_USERNAME}"
+        DOCKER_BUILDKIT = '1'
     }
 
     stages {
@@ -14,39 +15,56 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    bat 'docker-compose build'
+        stage('Build Docker Images in Parallel') {
+            parallel {
+                stage('Build lendsqr_backend Image') {
+                    steps {
+                        script {
+                            bat 'docker-compose build lendsqr_backend'
+                        }
+                    }
                 }
+                stage('Build lendsqr Image') {
+                    steps {
+                        script {
+                            bat 'docker-compose build lendsqr'
+                        }
+                    }
+                }
+                // Add more stages for additional services as needed
             }
         }
 
         stage('Login to GHCR') {
             steps {
                 script {
-                    bat "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin"
+                    bat "echo ${DOCKERHUB_CREDENTIALS} | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin"
                 }
             }
         }
 
-        stage('Tag and Push Images') {
+        stage('Tag and Push Images in Parallel') {
             steps {
                 script {
                     // Get the list of services from docker-compose file
                     def services = bat(script: "docker-compose config --services", returnStdout: true).trim().split('\r?\n')
 
-                    // Tag and push each service
+                    def parallelStages = [:]
+
                     services.each { service ->
-                        def imageId = bat(script: "docker-compose images -q ${service}", returnStdout: true).trim()
-                        def fullImageName = "${IMAGE_NAME}-${service}:latest"
+                        parallelStages["Tag and Push ${service}"] = {
+                            def imageId = bat(script: "docker-compose images -q ${service}", returnStdout: true).trim()
+                            def fullImageName = "${IMAGE_NAME}-${service}:latest"
 
-                        // Tag the image
-                        bat "docker tag ${imageId} ${fullImageName}"
+                            // Tag the image
+                            bat "docker tag ${imageId} ${fullImageName}"
 
-                        // Push the image
-                        bat "docker push ${fullImageName}"
+                            // Push the image
+                            bat "docker push ${fullImageName}"
+                        }
                     }
+
+                    parallel parallelStages
                 }
             }
         }
