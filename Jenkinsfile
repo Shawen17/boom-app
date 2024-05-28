@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('github-token') // ID of the secret text in Jenkins
         GITHUB_USERNAME = 'shawen17'
-        IMAGE_NAME = 'ghcr.io/${GITHUB_USERNAME}'
+        IMAGE_NAME = "ghcr.io/${GITHUB_USERNAME}"
         DOCKER_BUILDKIT = '1'
         DB_USER=credentials('DB_USER')
         PASSWORD=credentials('PASSWORD')
