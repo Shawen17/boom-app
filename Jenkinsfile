@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     
-                    bat 'echo ${DOCKERHUB_CREDENTIALS} | docker login ghcr.io -u ${GITHUB_USERNAME} --password-stdin'
+                    bat 'echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin'
                 }
             }
         }
