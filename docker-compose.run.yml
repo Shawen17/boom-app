@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   lendsqr_backend:
-    image: ${IMAGE_NAME}-lendsqr_backend:latest
+    image: ${LENDSQL_BACKEND_IMAGE}
     container_name: lendsqr_backend
     command: python manage.py runserver 0.0.0.0:8000
     ports:
@@ -12,9 +12,14 @@ services:
       - ./lendsqr_backend/lendsqr/:/app/lendsqr
       - ./lendsqr_backend:/app
       - ./lendsqr_backend/media:/app/media
+    environment:
+      DB_USER: ${DB_USER}
+      PASSWORD: ${PASSWORD}
+      CLUSTERNAME: ${CLUSTERNAME}
+      
 
   lendsqr:
-    image: ${IMAGE_NAME}-lendsqr:latest
+    image: ${LENDSQL_IMAGE}
     command: yarn start 0.0.0.0:3000
     ports:
       - 3000:3000
@@ -22,3 +27,7 @@ services:
       - ./lendsqr:/app
       - ./lendsqr/node_modules:/app/node_modules
       - ./lendsqr/public:/app/public
+    environment:
+      REACT_APP_LENDSQR_API_URL: ${REACT_APP_LENDSQR_API_URL}
+      REACT_APP_MEDIA_URL: ${REACT_APP_MEDIA_URL}
+

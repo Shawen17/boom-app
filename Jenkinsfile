@@ -93,6 +93,7 @@ pipeline {
 
                                     // Push the image
                                     bat "docker push ${fullImageName}"
+                                    env."${service.toUpperCase()}_IMAGE" = fullImageName
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
                                 }
@@ -107,26 +108,24 @@ pipeline {
                 }
             }
         }
-        // stage('Run Containers') {
-        //     steps {
-        //         script {
-        //             withEnv([
-        //                 "DB_USER=${DB_USER}",
-        //                 "PASSWORD=${PASSWORD}",
-        //                 "CLUSTERNAME=${CLUSTERNAME}",
-        //                 "SECRET_KEY=${SECRET_KEY}",
-        //                 "HOST=${HOST}",
-        //                 "AUTH_PASSWORD=${AUTH_PASSWORD}",
-        //                 "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}",
-        //                 "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}",
-        //                 "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
-        //                 "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}"
-        //             ]) {
-        //                 bat 'docker-compose -f docker-compose.run.yml up -d'
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Run Containers') {
+            steps {
+                script {
+                    withEnv([
+                        "DB_USER=${DB_USER}",
+                        "PASSWORD=${PASSWORD}",
+                        "CLUSTERNAME=${CLUSTERNAME}",
+                        "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
+                        "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
+                        "LENDSQL_BACKEND_IMAGE=${env.LENDSQL_BACKEND_IMAGE}",
+                        "LENDSQL_IMAGE=${env.LENDSQL_IMAGE}"
+
+                    ]) {
+                        bat 'docker-compose -f docker-compose.run.yml up -d'
+                    }
+                }
+            }
+        }
     }
 
     post {
