@@ -1,0 +1,11 @@
+.env
+secrets
+boomer.yaml
+docker-compose1.yml
+./lendsqr/Dockerfile1
+./lendsqr/.env
+./lendsqr_backend/lendenv
+./lendsqr_backend/media
+./lendsqr_backend/.env
+./lendsqr_backend/db.sqlite3
+./lendsqr_backend/vercel.json
