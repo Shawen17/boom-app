@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('github-token') // ID of the secret text in Jenkins
         GITHUB_USERNAME = 'shawen17'
-        IMAGE_NAME = "ghcr.io/${GITHUB_USERNAME}"
+        IMAGE_NAME = 'ghcr.io/%GITHUB_USERNAME%'
         DOCKER_BUILDKIT = '1'
         DB_USER=credentials('DB_USER')
         PASSWORD=credentials('PASSWORD')
@@ -74,12 +74,19 @@ pipeline {
                     services.each { service ->
                         parallelStages["Tag and Push ${service}"] = {
                             script {
-                                def imageId = bat(script: "docker images -q boom-app-job-${service}", returnStdout: true).trim()
-                                // echo "imageId is ${imageId}"
+                                // Create a temporary file to store the image ID
+                                def imageIdFile = "imageId_${service}.txt"
+                                
+                                // Capture the image ID to the file
+                                bat "docker images -q boom-app-job-${service} > ${imageIdFile}"
+
+                                // Read the image ID from the file
+                                def imageId = readFile(imageIdFile).trim()
+                                echo "imageId is ${imageId}"
 
                                 if (imageId) {
                                     def fullImageName = "${IMAGE_NAME}/boom-app-job-${service}:${env.BUILD_ID}"
-                                    // echo "full imagename is ${fullImageName}"
+                                    echo "full imagename is ${fullImageName}"
 
                                     // Tag the image
                                     bat "docker tag ${imageId} ${fullImageName}"
@@ -89,6 +96,9 @@ pipeline {
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
                                 }
+
+                                // Clean up the temporary file
+                                bat "del ${imageIdFile}"
                             }
                         }
                     }
