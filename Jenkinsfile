@@ -86,14 +86,16 @@ pipeline {
 
                                 if (imageId) {
                                     def fullImageName = "${IMAGE_NAME}/boom-app-job-${service}:${env.BUILD_ID}"
-                                    echo "full imagename is ${fullImageName}"
+                                    
+                                    env["${service.toUpperCase()}_IMAGE"] = fullImageName
+                                    echo "${service.toUpperCase()}_IMAGE is ${env["${service.toUpperCase()}_IMAGE"]}"
 
                                     // Tag the image
                                     bat "docker tag ${imageId} ${fullImageName}"
 
                                     // Push the image
                                     bat "docker push ${fullImageName}"
-                                    env."${service.toUpperCase()}_IMAGE" = fullImageName
+                                    
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
                                 }
