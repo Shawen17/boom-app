@@ -111,7 +111,7 @@ pipeline {
         stage('Run Containers') {
             steps {
                 script {
-                    bat 'echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin'
+                   
                     withEnv([
                         "DB_USER=${DB_USER}",
                         "PASSWORD=${PASSWORD}",
@@ -122,7 +122,10 @@ pipeline {
                         "LENDSQL_IMAGE=${env.LENDSQL_IMAGE}"
 
                     ]) {
-                        bat 'docker-compose -f docker-compose.run.yml up -d'
+                        bat '''
+                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin'
+                        docker-compose -f docker-compose.run.yml up -d
+                        '''
                     }
                 }
             }
