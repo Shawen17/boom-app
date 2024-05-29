@@ -1,3 +1,6 @@
+def LENDSQR_BACKEND_IMAGE
+def LENDSQR_IMAGE
+
 pipeline {
     agent any
 
@@ -68,7 +71,7 @@ pipeline {
                     // Get the list of services from docker-compose file
                     // def services = bat(script: "docker-compose config --services", returnStdout: true).trim().split('\r?\n')
                     def services = ['lendsqr_backend', 'lendsqr']
-                    def imageNames = [:]
+                    
                     def parallelStages = [:]
 
                     services.each { service ->
@@ -93,7 +96,13 @@ pipeline {
                                     // Push the image
                                     bat "docker push ${fullImageName}"
 
-                                    imageNames[service] = fullImageName
+                                    if(service=='lendsqr_backend'){
+                                        env.LENDSQR_BACKEND_IMAGE=fullImageName
+                                    }else{
+                                        env.LENDSQR_IMAGE=fullImageName
+                                    }
+
+                                   
                                     
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
@@ -107,26 +116,24 @@ pipeline {
 
                     parallel parallelStages
 
-                    script {
-                        // Set the image names as environment variables for the next stage
-                        writeFile file: 'env.properties', text: services.collect { service -> "${service.toUpperCase()}_IMAGE=${imageNames[service]}" }.join('\n')
-                    }
+                   
                 }
             }
         }
         stage('Run Containers') {
+            echo "the images are ${LENDSQR_BACKEND_IMAGE} and ${LENDSQR_IMAGE}"
             steps {
                 script {
-                        def envVars = readFile('env.properties').trim().split('\n')
-                        def runEnv = envVars + [
-                            "DB_USER=${DB_USER}",
-                            "PASSWORD=${PASSWORD}",
-                            "CLUSTERNAME=${CLUSTERNAME}",
-                            "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
-                            "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}"
-                        ]
+                    withEnv([
+                        "DB_USER=${DB_USER}",
+                        "PASSWORD=${PASSWORD}",
+                        "CLUSTERNAME=${CLUSTERNAME}",
+                        "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
+                        "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
+                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+                        "LENDSQR_IMAGE=${LENDSQR_IMAGE}"
 
-                    withEnv(runEnv) {
+                    ]) {
                         bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         docker-compose -f docker-compose.run.yml up -d
