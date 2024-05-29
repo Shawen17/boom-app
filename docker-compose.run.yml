@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   lendsqr_backend:
-    image: ${LENDSQL_BACKEND_IMAGE}
+    image: ${LENDSQR_BACKEND_IMAGE}
     container_name: lendsqr_backend
     command: python manage.py runserver 0.0.0.0:8000
     ports:
@@ -19,7 +19,7 @@ services:
       
 
   lendsqr:
-    image: ${LENDSQL_IMAGE}
+    image: ${LENDSQR_IMAGE}
     command: yarn start 0.0.0.0:3000
     ports:
       - 3000:3000
