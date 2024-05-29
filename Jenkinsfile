@@ -68,7 +68,7 @@ pipeline {
                     // Get the list of services from docker-compose file
                     // def services = bat(script: "docker-compose config --services", returnStdout: true).trim().split('\r?\n')
                     def services = ['lendsqr_backend', 'lendsqr']
-
+                    def imageNames = [:]
                     def parallelStages = [:]
 
                     services.each { service ->
@@ -87,14 +87,13 @@ pipeline {
                                 if (imageId) {
                                     def fullImageName = "${IMAGE_NAME}/boom-app-job-${service}:${env.BUILD_ID}"
                                     
-                                    env["${service.toUpperCase()}_IMAGE"] = fullImageName
-                                    echo "${service.toUpperCase()}_IMAGE is ${env["${service.toUpperCase()}_IMAGE"]}"
-
                                     // Tag the image
                                     bat "docker tag ${imageId} ${fullImageName}"
 
                                     // Push the image
                                     bat "docker push ${fullImageName}"
+
+                                    imageNames[service] = fullImageName
                                     
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
@@ -107,6 +106,14 @@ pipeline {
                     }
 
                     parallel parallelStages
+                    
+                    script {
+                        // Set the image names as environment variables for the next stage
+                        withEnv(services.collect { service -> "${service.toUpperCase()}_IMAGE=${imageNames[service]}" }) {
+                            env.LENDSR_BACKEND_IMAGE = imageNames['lendsqr_backend']
+                            env.LENDSR_IMAGE = imageNames['lendsqr']
+                        }
+                    }
                 }
             }
         }
