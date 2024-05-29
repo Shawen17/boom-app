@@ -125,7 +125,7 @@ pipeline {
         stage('Run Containers') {
             
             steps {
-                echo "the images are ${LENDSQR_BACKEND_IMAGE} and ${LENDSQR_IMAGE}"
+                echo "the images are ${LendsqrBackendImage} and ${LendsqrImage}"
                 script {
                     withEnv([
                         "DB_USER=${DB_USER}",
