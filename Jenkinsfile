@@ -102,7 +102,7 @@ pipeline {
                                         env.LENDSQR_IMAGE=fullImageName
                                     }
 
-                                   echo "image is ${LENDSQR_BACKEND_IMAGE}"
+                                   echo "image is ${fullImageName}"
                                     
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
