@@ -86,8 +86,7 @@ pipeline {
 
                                 // Read the image ID from the file
                                 def imageId = readFile(imageIdFile).trim()
-                                echo "imageId is ${imageId}"
-
+                                
                                 if (imageId) {
                                     def fullImageName = "${IMAGE_NAME}/boom-app-job-${service}:${env.BUILD_ID}"
                                     
@@ -103,12 +102,9 @@ pipeline {
                                        LendsqrImage = fullImageName
                                     }
 
-                                   echo "image is ${LendsqrImage}"
-                                    
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
                                 }
-
                                 // Clean up the temporary file
                                 bat "del ${imageIdFile}"
                             }
@@ -124,7 +120,6 @@ pipeline {
                 LENDSQR_IMAGE = "${LendsqrImage}"
             }
             steps {
-                echo "the images are ${LendsqrBackendImage} and ${LendsqrImage}"
                 
                 script {
                     withEnv([
@@ -135,7 +130,6 @@ pipeline {
                         "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
                         "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
                         "LENDSQR_IMAGE=${LENDSQR_IMAGE}"
-
                     ]) {
                         bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
