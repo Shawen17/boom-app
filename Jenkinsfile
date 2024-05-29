@@ -111,7 +111,7 @@ pipeline {
         stage('Run Containers') {
             steps {
                 script {
-                   
+                        echo "images are ${env.LENDSQL_BACKEND_IMAGE} and ${env.LENDSQL_IMAGE}"
                     withEnv([
                         "DB_USER=${DB_USER}",
                         "PASSWORD=${PASSWORD}",
