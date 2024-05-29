@@ -19,8 +19,7 @@ pipeline {
         AWS_ACCESS_KEY_ID=credentials('AWS_ACCESS_KEY_ID')
         REACT_APP_LENDSQR_API_URL=credentials('REACT_APP_LENDSQR_API_URL')
         REACT_APP_MEDIA_URL=credentials('REACT_APP_MEDIA_URL')
-        LendsqrBackendImage = ""
-        LendsqrImage = ""
+        
     }
 
     stages {
@@ -120,13 +119,13 @@ pipeline {
             }
         }
         stage('Run Containers') {
-            
+            environment{
+                LENDSQR_BACKEND_IMAGE = LendsqrBackendImage
+                LENDSQR_IMAGE = LendsqrImage
+            }
             steps {
                 echo "the images are ${LendsqrBackendImage} and ${LendsqrImage}"
-                environment{
-                    LENDSQR_BACKEND_IMAGE = LendsqrBackendImage
-                    LENDSQR_IMAGE = LendsqrImage
-                }
+                
                 script {
                     withEnv([
                         "DB_USER=${DB_USER}",
