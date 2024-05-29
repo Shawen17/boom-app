@@ -102,7 +102,7 @@ pipeline {
                                        LendsqrImage = fullImageName
                                     }
 
-                                   echo "image is ${LENDSQR_IMAGE}"
+                                   echo "image is ${LendsqrImage}"
                                     
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
