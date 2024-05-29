@@ -123,7 +123,7 @@ pipeline {
 
                     ]) {
                         bat '''
-                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin'
+                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         docker-compose -f docker-compose.run.yml up -d
                         '''
                     }
