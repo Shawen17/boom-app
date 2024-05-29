@@ -97,12 +97,12 @@ pipeline {
                                     bat "docker push ${fullImageName}"
 
                                     if(service=='lendsqr_backend'){
-                                        env.LENDSQR_BACKEND_IMAGE=fullImageName
+                                        env.LENDSQR_BACKEND_IMAGE = fullImageName
                                     }else{
-                                        env.LENDSQR_IMAGE=fullImageName
+                                        env.LENDSQR_IMAGE = fullImageName
                                     }
 
-                                   echo "image is ${fullImageName}"
+                                   echo "image is ${LENDSQR_IMAGE}"
                                     
                                 } else {
                                     error "Failed to retrieve image ID for ${service}"
