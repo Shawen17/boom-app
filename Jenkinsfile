@@ -106,13 +106,10 @@ pipeline {
                     }
 
                     parallel parallelStages
-                    
+
                     script {
                         // Set the image names as environment variables for the next stage
-                        withEnv(services.collect { service -> "${service.toUpperCase()}_IMAGE=${imageNames[service]}" }) {
-                            env.LENDSR_BACKEND_IMAGE = imageNames['lendsqr_backend']
-                            env.LENDSR_IMAGE = imageNames['lendsqr']
-                        }
+                        writeFile file: 'env.properties', text: services.collect { service -> "${service.toUpperCase()}_IMAGE=${imageNames[service]}" }.join('\n')
                     }
                 }
             }
@@ -120,17 +117,16 @@ pipeline {
         stage('Run Containers') {
             steps {
                 script {
-                        echo "images are ${env.LENDSQL_BACKEND_IMAGE} and ${env.LENDSQL_IMAGE}"
-                    withEnv([
-                        "DB_USER=${DB_USER}",
-                        "PASSWORD=${PASSWORD}",
-                        "CLUSTERNAME=${CLUSTERNAME}",
-                        "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
-                        "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
-                        "LENDSQL_BACKEND_IMAGE=${env.LENDSQL_BACKEND_IMAGE}",
-                        "LENDSQL_IMAGE=${env.LENDSQL_IMAGE}"
+                        def envVars = readFile('env.properties').trim().split('\n')
+                        def runEnv = envVars + [
+                            "DB_USER=${DB_USER}",
+                            "PASSWORD=${PASSWORD}",
+                            "CLUSTERNAME=${CLUSTERNAME}",
+                            "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
+                            "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}"
+                        ]
 
-                    ]) {
+                    withEnv(runEnv) {
                         bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         docker-compose -f docker-compose.run.yml up -d
