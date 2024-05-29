@@ -115,10 +115,7 @@ pipeline {
                             }
                         }
                     }
-
                     parallel parallelStages
-
-                   
                 }
             }
         }
@@ -126,6 +123,10 @@ pipeline {
             
             steps {
                 echo "the images are ${LendsqrBackendImage} and ${LendsqrImage}"
+                environment{
+                    LENDSQR_BACKEND_IMAGE = LendsqrBackendImage
+                    LENDSQR_IMAGE = LendsqrImage
+                }
                 script {
                     withEnv([
                         "DB_USER=${DB_USER}",
@@ -133,8 +134,8 @@ pipeline {
                         "CLUSTERNAME=${CLUSTERNAME}",
                         "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
                         "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
-                        "LENDSQR_BACKEND_IMAGE=${LendsqrBackendImage}",
-                        "LENDSQR_IMAGE=${LendsqrImage}"
+                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+                        "LENDSQR_IMAGE=${LENDSQR_IMAGE}"
 
                     ]) {
                         bat '''
