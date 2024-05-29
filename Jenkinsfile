@@ -120,8 +120,8 @@ pipeline {
         }
         stage('Run Containers') {
             environment{
-                LENDSQR_BACKEND_IMAGE = LendsqrBackendImage
-                LENDSQR_IMAGE = LendsqrImage
+                LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
+                LENDSQR_IMAGE = "${LendsqrImage}"
             }
             steps {
                 echo "the images are ${LendsqrBackendImage} and ${LendsqrImage}"
