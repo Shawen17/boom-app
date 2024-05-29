@@ -1,5 +1,5 @@
-// def LENDSQR_BACKEND_IMAGE
-// def LENDSQR_IMAGE
+def LendsqrBackendImage
+def LendsqrImage
 
 pipeline {
     agent any
@@ -97,9 +97,9 @@ pipeline {
                                     bat "docker push ${fullImageName}"
 
                                     if(service=='lendsqr_backend'){
-                                       def LENDSQR_BACKEND_IMAGE = fullImageName
+                                       LendsqrBackendImage = fullImageName
                                     }else{
-                                       def LENDSQR_IMAGE = fullImageName
+                                       LendsqrImage = fullImageName
                                     }
 
                                    echo "image is ${LENDSQR_IMAGE}"
