@@ -19,6 +19,8 @@ pipeline {
         AWS_ACCESS_KEY_ID=credentials('AWS_ACCESS_KEY_ID')
         REACT_APP_LENDSQR_API_URL=credentials('REACT_APP_LENDSQR_API_URL')
         REACT_APP_MEDIA_URL=credentials('REACT_APP_MEDIA_URL')
+        LendsqrBackendImage = ""
+        LendsqrImage = ""
     }
 
     stages {
@@ -131,8 +133,8 @@ pipeline {
                         "CLUSTERNAME=${CLUSTERNAME}",
                         "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
                         "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
-                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
-                        "LENDSQR_IMAGE=${LENDSQR_IMAGE}"
+                        "LENDSQR_BACKEND_IMAGE=${LendsqrBackendImage}",
+                        "LENDSQR_IMAGE=${LendsqrImage}"
 
                     ]) {
                         bat '''
