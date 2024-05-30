@@ -118,21 +118,21 @@ pipeline {
         stage('Check and Stop Containers') {
             steps {
                 bat '''
-                    wsl bash -c "if [ \$(docker ps -q | wc -l) -gt 0 ]; then docker stop \$(docker ps -q); fi"
+                    powershell -Command "docker container ls -q | ForEach-Object { docker stop $_ }"
                 '''
             }
         }
         stage('Remove All Containers') {
             steps {
                 bat '''
-                    wsl bash -c "docker ps -a -q | xargs -r docker rm"
+                    powershell -Command "docker rm $(docker ps -q -a) -f"
                 '''
             }
         }
         stage('Remove All Images') {
             steps {
                 bat '''
-                    wsl bash -c "docker images -q | xargs -r docker rmi -f"
+                    powershell -Command " docker image rm -f $(docker image ls -q)"
                 '''
             }
         }
