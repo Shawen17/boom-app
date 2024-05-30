@@ -114,18 +114,29 @@ pipeline {
                 }
             }
         }
-        stage('Cleanup') {
+        
+        stage('Check and Stop Containers') {
             steps {
-                script {
-                    // Remove unused Docker images using PowerShell
-                    bat '''
-                        docker system prune -f
-                        docker stop $(docker ps -a -q)
-                    '''
-                }
+                bat '''
+                    wsl bash -c "if [ \$(docker ps -q | wc -l) -gt 0 ]; then docker stop \$(docker ps -q); fi"
+                '''
             }
         }
-
+        stage('Remove All Containers') {
+            steps {
+                bat '''
+                    wsl bash -c "docker ps -a -q | xargs -r docker rm"
+                '''
+            }
+        }
+        stage('Remove All Images') {
+            steps {
+                bat '''
+                    wsl bash -c "docker images -q | xargs -r docker rmi -f"
+                '''
+            }
+        }
+        
         stage('Run Containers') {
             environment{
                 LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
