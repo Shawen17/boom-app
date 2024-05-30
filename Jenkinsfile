@@ -114,6 +114,23 @@ pipeline {
                 }
             }
         }
+         stage('Cleanup') {
+            steps {
+                script {
+                    // Remove unused Docker images
+                    bat '''
+                        docker image prune -f
+                        unused_images=$(docker images -f "dangling=false" -q)
+                        for image in ${unused_images}; do
+                            if [ -z "$(docker ps -q --filter ancestor=${image})" ]; then
+                                docker rmi ${image}
+                            fi
+                        done
+                    '''
+                }
+            }
+        }
+
         stage('Run Containers') {
             environment{
                 LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
