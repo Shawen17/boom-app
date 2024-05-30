@@ -93,11 +93,7 @@ const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
         </Brand>
         <Item>
           <Left>
-            <img
-              src="/static/icons/lendsqrArt.png"
-              alt="art"
-              style={{ width: "100%", justifyContent: "center", marginTop: 20 }}
-            />
+            <Art src="/static/icons/lendsqrArt.png" alt="art" />
           </Left>
           <Right>
             <h1 style={{ color: "#00308f", fontWeight: "bold" }}>Welcome! </h1>
