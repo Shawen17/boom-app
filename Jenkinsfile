@@ -119,15 +119,8 @@ pipeline {
                 script {
                     // Remove unused Docker images using PowerShell
                     bat '''
-                        powershell -Command "
-                        docker image prune -f
-                        $unusedImages = docker images -f 'dangling=false' -q
-                        foreach ($image in $unusedImages) {
-                            if (-not (docker ps -q --filter ancestor=$image)) {
-                                docker rmi $image
-                            }
-                        }
-                        "
+                        docker system prune -f
+                        docker stop $(docker ps -a -q)
                     '''
                 }
             }
