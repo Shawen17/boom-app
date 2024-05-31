@@ -4,7 +4,7 @@ services:
   lendsqr_backend:
     image: ${LENDSQR_BACKEND_IMAGE}
     container_name: "lendsqr_backend${TAG}"
-    command: cd lendsqr_backend && python manage.py runserver 0.0.0.0:8000
+    command: sh -c  "cd lendsqr_backend && python manage.py runserver 0.0.0.0:8000"
     ports:
       - 8000:8000
     restart: always
@@ -21,7 +21,7 @@ services:
   lendsqr:
     image: ${LENDSQR_IMAGE}
     container_name: "lendsqr${TAG}"
-    command: cd lendsqr && yarn start 0.0.0.0:3000
+    command: sh -c  "cd lendsqr && yarn start 0.0.0.0:3000"
     ports:
       - 3000:3000
     volumes:
