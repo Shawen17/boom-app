@@ -5,7 +5,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('github-token') // ID of the secret text in Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('github-token') 
         GITHUB_USERNAME = 'shawen17'
         IMAGE_NAME = "ghcr.io/${GITHUB_USERNAME}"
         DOCKER_BUILDKIT = '1'
@@ -69,8 +69,7 @@ pipeline {
         stage('Tag and Push Images in Parallel') {
             steps {
                 script {
-                    // Get the list of services from docker-compose file
-                    // def services = bat(script: "docker-compose config --services", returnStdout: true).trim().split('\r?\n')
+                    
                     def services = ['lendsqr_backend', 'lendsqr']
                     
                     def parallelStages = [:]

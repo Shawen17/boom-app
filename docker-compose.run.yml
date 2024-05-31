@@ -4,15 +4,9 @@ services:
   lendsqr_backend:
     image: ${LENDSQR_BACKEND_IMAGE}
     container_name: "lendsqr_backend${TAG}"
-    # working_dir: ./lendsqr_backend
-    # command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8000:8000
     restart: always
-    # volumes:
-    #   - ./lendsqr_backend/lendsqr/:/app/lendsqr
-    #   - ./lendsqr_backend:/app
-    #   - ./lendsqr_backend/media:/app/media
     environment:
       DB_USER: ${DB_USER}
       PASSWORD: ${PASSWORD}
@@ -22,14 +16,8 @@ services:
   lendsqr:
     image: ${LENDSQR_IMAGE}
     container_name: "lendsqr${TAG}"
-    # working_dir: ./lendsqr
-    # command: yarn start 0.0.0.0:3000
     ports:
       - 3000:3000
-    # volumes:
-    #   - ./lendsqr:/app
-    #   - ./lendsqr/node_modules:/app/node_modules
-    #   - ./lendsqr/public:/app/public
     environment:
       REACT_APP_LENDSQR_API_URL: ${REACT_APP_LENDSQR_API_URL}
       REACT_APP_MEDIA_URL: ${REACT_APP_MEDIA_URL}
