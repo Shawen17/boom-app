@@ -6,7 +6,6 @@ import FilterForm from "./FilterForm";
 import { PageButton, Pagination as Paginate } from "./Styled";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import Pagination from "./Pagination";
 import { StatusUpdate } from "./utility/AdminAction";
 import axios from "axios";
 import { mergeFields } from "./utility/AdminAction";
@@ -18,9 +17,7 @@ const Users = (props) => {
   const [clicked, setClicked] = useState(false);
   const [inputs, setInputs] = useState({});
   const [result, setResult] = useState(props.currentData);
-  const [currentPage, setCurrentPage] = useState(1);
   const [filtered, setFiltered] = useState(0);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -115,10 +112,10 @@ const Users = (props) => {
   };
 
   var currentData = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * PageSize;
+    const firstPageIndex = (props.page - 1) * PageSize;
     const lastPageIndex = firstPageIndex + PageSize;
     return result.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage, PageSize, result]);
+  }, [props.page, PageSize, result]);
 
   const formatDate = (str) => {
     let date = new Date(str);
@@ -232,27 +229,17 @@ const Users = (props) => {
           })}
         </tbody>
       </Table>
-      {props.filterInProgress || clicked ? (
-        <Pagination
-          className="pagination mt-5"
-          currentPage={currentPage}
-          totalCount={result.length}
-          pageSize={PageSize}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
-      ) : (
-        <Paginate>
-          <PageButton onClick={() => props.prevPage()}>
-            <ArrowBackIosIcon />
-          </PageButton>
-          <PageButton onClick={() => props.nextPage()}>
-            <ArrowForwardIosIcon />
-          </PageButton>
-          <div>
-            {props.page} of {Math.ceil(props.totalCount / PageSize)}...
-          </div>
-        </Paginate>
-      )}
+      <Paginate>
+        <PageButton onClick={() => props.prevPage()}>
+          <ArrowBackIosIcon />
+        </PageButton>
+        <PageButton onClick={() => props.nextPage()}>
+          <ArrowForwardIosIcon />
+        </PageButton>
+        <div>
+          {props.page} of {Math.ceil(props.totalCount / PageSize)}...
+        </div>
+      </Paginate>
     </div>
   );
 };

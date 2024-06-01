@@ -6,6 +6,8 @@ import NavBar from "../components/NavBar";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Loading from "../components/Loading";
+import { logout } from "../action/auth";
+import { connect } from "react-redux";
 
 const Container = styled.div`
   padding: 8px;
@@ -92,13 +94,13 @@ const StatNum = styled.h5`
 
 let PageSize = 20;
 
-const Dashboard = () => {
+const Dashboard = ({ logout }) => {
   window.title = "Dashboard";
+  const token = localStorage.getItem("access");
   const [searchValue, setSearchValue] = useState([]);
   const [page, setPage] = useState(1);
   const [modal, setModal] = useState(false);
   const [error, setError] = useState("");
-  const [filterInProgress, setFilterInProgress] = useState(false);
   const [statusUpated, setStatusUpdated] = useState(false);
   const [raw, setRaw] = useState({
     items: {
@@ -111,7 +113,6 @@ const Dashboard = () => {
   });
 
   const [display, setDisplay] = useState(false);
-  const [filteredUsers, setFilteredUsers] = useState(raw.items.users_paginated);
 
   const onMenuClick = () => {
     setDisplay(!display);
@@ -143,58 +144,38 @@ const Dashboard = () => {
     const config = {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `JWT ${token}`,
         Accept: "application/json",
       },
     };
-    try {
-      axios
-        .get(
-          `${process.env.REACT_APP_LENDSQR_API_URL}/api/users/?page=${page}`,
-          config
-        )
-        .then((res) => {
-          setModal(false);
-          setRaw({ items: res.data });
-        })
-        .catch((error) => {
-          setModal(false);
-          setError(error);
-        });
-    } catch (error) {
-      setModal(false);
-      setError(error);
-    }
-  }, [page, statusUpated]);
-
-  useEffect(() => {
+    var search = "";
     if (searchValue.length > 4) {
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Accept: "application/json",
-        },
-      };
-      setFilterInProgress(true);
+      search = searchValue;
+    }
+
+    if (token) {
       try {
         axios
           .get(
-            `${process.env.REACT_APP_LENDSQR_API_URL}/api/filter-users/`,
-            {
-              params: { search: searchValue },
-            },
+            `${process.env.REACT_APP_LENDSQR_API_URL}/api/users?page=${page}&search=${search}`,
             config
           )
-          .then((res) => setFilteredUsers(res.data))
-          .catch((error) => setError(error));
+          .then((res) => {
+            setModal(false);
+            setRaw({ items: res.data });
+          })
+          .catch((error) => {
+            setModal(false);
+            setError(error);
+          });
       } catch (error) {
+        setModal(false);
         setError(error);
       }
-      setPage(1);
     } else {
-      setFilterInProgress(false);
-      setFilteredUsers(raw.items.users_paginated);
+      logout();
     }
-  }, [searchValue, raw.items.users_paginated]);
+  }, [page, logout, token, searchValue, statusUpated]);
 
   return (
     <motion.div
@@ -258,12 +239,11 @@ const Dashboard = () => {
             {modal ? Loading() : ""}
             <Users
               page={page}
-              filterInProgress={filterInProgress}
               PageSize={PageSize}
               totalCount={raw.items.all_users}
               prevPage={prevPage}
               nextPage={nextPage}
-              currentData={filteredUsers}
+              currentData={raw.items.users_paginated}
               updateStatus={updateStatus}
             />
           </div>
@@ -273,4 +253,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default connect(null, { logout })(Dashboard);
