@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   lendsqr_backend:
     # image: lendsqr_backend_image
