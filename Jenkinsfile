@@ -49,7 +49,7 @@ pipeline {
                 stage('Build lendsqr Image') {
                     steps {
                         script {
-                           bat 'docker-compose -f docker-compose.build.yml build lendsqr'
+                           bat 'docker compose -f docker-compose.build.yml build lendsqr'
                         }
                     }
                 }
@@ -157,7 +157,7 @@ pipeline {
                     ]) {
                         bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
-                        docker-compose -f docker-compose.run.yml up -d
+                        docker compose -f docker-compose.run.yml up -d
                         '''
                     }
                 }
