@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Table } from "reactstrap";
 import { MoreVertOutlined, FilterListOutlined } from "@material-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,7 @@ const Users = (props) => {
   const [inputs, setInputs] = useState({});
   const [result, setResult] = useState(props.currentData);
   const [filtered, setFiltered] = useState(0);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const Users = (props) => {
       };
       axios
         .get(
-          `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter/`,
+          `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter?page=${props.page}`,
           {
             params: {
               profile: JSON.stringify({ profile }),
@@ -55,7 +56,7 @@ const Users = (props) => {
           console.error(error);
         });
     }
-  }, [filtered, inputs, clicked]);
+  }, [filtered, inputs, clicked, props.page]);
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -73,7 +74,8 @@ const Users = (props) => {
     setResult(props.currentData);
   };
 
-  const filterClick = () => {
+  const filterClick = (event) => {
+    setPosition({ top: event.pageY + 20, left: event.pageX - 30 });
     setClicked(!clicked);
     if (clicked) {
       onReset();
@@ -111,12 +113,6 @@ const Users = (props) => {
     }
   };
 
-  var currentData = useMemo(() => {
-    const firstPageIndex = (props.page - 1) * PageSize;
-    const lastPageIndex = firstPageIndex + PageSize;
-    return result.slice(firstPageIndex, lastPageIndex);
-  }, [props.page, PageSize, result]);
-
   const formatDate = (str) => {
     let date = new Date(str);
     return date.toDateString();
@@ -124,15 +120,14 @@ const Users = (props) => {
 
   return (
     <div style={{ borderRadius: "6px", backgroundColor: "white" }}>
-      {clicked ? (
+      {clicked && (
         <FilterForm
           handleChange={handleChange}
           onFilter={onFilter}
           onReset={onReset}
           inputs={inputs}
+          style={position}
         />
-      ) : (
-        ""
       )}
 
       <Table borderless style={{ position: "relative", maxWidth: "100vw" }}>
@@ -161,7 +156,7 @@ const Users = (props) => {
         </thead>
 
         <tbody>
-          {currentData.map((user, index) => {
+          {result.map((user, index) => {
             return (
               <tr
                 key={index}

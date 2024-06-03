@@ -9,7 +9,7 @@ urlpatterns = [
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path(
-        "api/users/",
+        "api/users",
         views.users,
     ),
     path("api/update/user/<str:id>/<str:action>", views.update_status),

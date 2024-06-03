@@ -149,7 +149,7 @@ const Dashboard = ({ logout }) => {
       },
     };
     var search = "";
-    if (searchValue.length > 4) {
+    if (searchValue.length >= 4) {
       search = searchValue;
     }
 
@@ -236,7 +236,7 @@ const Dashboard = ({ logout }) => {
               </Stats>
             </Dashstats>
             {error}
-            {modal ? Loading() : ""}
+            {modal && Loading()}
             <Users
               page={page}
               PageSize={PageSize}

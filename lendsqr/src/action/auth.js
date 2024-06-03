@@ -49,25 +49,27 @@ export const checkIsAuthenticated = () => async (dispatch) => {
         config
       );
       if (res.data.code !== "token_not_valid") {
-        dispatch({
+        await dispatch({
           type: AUTHENTICATION_SUCCESS,
         });
+        return Promise.resolve(res.data);
       } else {
-        dispatch({
+        await dispatch({
           type: AUTHENTICATION_FAIL,
         });
+        return Promise.resolve(res.data);
       }
     } catch (err) {
-      dispatch({
+      await dispatch({
         type: AUTHENTICATION_FAIL,
       });
     }
 
-    dispatch({
+    await dispatch({
       type: AUTHENTICATION_SUCCESS,
     });
   } else {
-    dispatch({
+    await dispatch({
       type: AUTHENTICATION_FAIL,
     });
   }
@@ -88,17 +90,19 @@ export const load_user = () => async (dispatch) => {
         `${process.env.REACT_APP_LENDSQR_API_URL}/auth/users/me/`,
         config
       );
-      dispatch({
+      await dispatch({
         type: USER_LOADED_SUCCESS,
         payload: res.data,
       });
+      return Promise.resolve(res.data);
     } catch (err) {
-      dispatch({
+      await dispatch({
         type: USER_LOADED_FAIL,
       });
+      return Promise.reject(err.message);
     }
   } else {
-    dispatch({
+    await dispatch({
       type: USER_LOADED_FAIL,
     });
   }
@@ -119,18 +123,22 @@ export const login = (email, password) => async (dispatch) => {
       config
     );
 
-    dispatch({
+    await dispatch({
       type: LOGIN_SUCCESS,
       payload: res.data,
     });
 
-    dispatch(load_user());
-    dispatch(is_staff(email));
-    dispatch(get_portfolio(email));
+    await Promise.all([
+      dispatch(load_user()),
+      dispatch(is_staff(email)),
+      dispatch(get_portfolio(email)),
+    ]);
+    return Promise.resolve(res.data);
   } catch (err) {
     dispatch({
       type: LOGIN_FAIL,
     });
+    return Promise.reject(err.message);
   }
 };
 
@@ -242,14 +250,16 @@ export const get_portfolio = (email) => async (dispatch) => {
         },
         config
       );
-      dispatch({
+      await dispatch({
         type: PORTFOLIO_RETRIVAL_SUCCESS,
         payload: res.data,
       });
+      return Promise.resolve(res.data);
     } catch (err) {
       dispatch({
         type: PORTFOLIO_RETRIVAL_FAIL,
       });
+      return Promise.reject(err.message);
     }
   } else {
     dispatch({
@@ -276,14 +286,16 @@ export const is_staff = (email) => async (dispatch) => {
         },
         config
       );
-      dispatch({
+      await dispatch({
         type: UPDATE_STAFF_STATUS_SUCCESS,
         payload: res.data,
       });
+      return Promise.resolve(res.data);
     } catch (err) {
       dispatch({
         type: UPDATE_STAFF_STATUS_FAIL,
       });
+      return Promise.reject(err.message);
     }
   } else {
     dispatch({

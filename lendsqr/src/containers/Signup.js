@@ -18,7 +18,7 @@ import { Form } from "reactstrap";
 import { motion } from "framer-motion";
 
 const Signup = () => {
-  document.title = "signup";
+  document.title = "Signup";
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({});
   const [error, setError] = useState("");

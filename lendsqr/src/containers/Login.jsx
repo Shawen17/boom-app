@@ -21,7 +21,7 @@ import Loading from "../components/Loading";
 import { Form } from "reactstrap";
 
 const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
-  window.title = "login";
+  document.title = "Login";
   const location = useLocation();
   const signupMsg = location.state ? location.state : "Enter details to login";
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
           } else {
             navigate("/user-dashboard");
           }
-        }, 2000);
+        }, 1000);
       }
     } else if (loginFailed) {
       setModalOn(false);
@@ -51,8 +51,7 @@ const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
 
   const HandleChange = (event) => {
     setError("");
-    const name = event.target.name;
-    const value = event.target.value;
+    const { name, value } = event.target;
     setValues((values) => ({ ...values, [name]: value.trim() }));
   };
 
@@ -64,10 +63,9 @@ const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
     e.preventDefault();
     reset();
     setModalOn(true);
-    const email = inputValues.email;
-    const password = inputValues.password;
+    const { email, password } = inputValues;
     setMsg("Enter details to login");
-    login(email, password);
+    await login(email, password);
   };
 
   return (
@@ -106,7 +104,7 @@ const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
             >
               {msg}
             </p>
-            {modalOn ? Loading() : ""}
+            {modalOn && Loading()}
             <Form onSubmit={HandleSubmit}>
               <div style={{ fontSize: 13, color: "red" }}>{error}</div>
               <SearchContainer>
@@ -126,7 +124,7 @@ const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
                   type={clicked ? "text" : "password"}
                   onChange={HandleChange}
                 />
-                <Desc onClick={showPassword}>show</Desc>
+                <Desc onClick={showPassword}>{clicked ? "Hide" : "Show"}</Desc>
               </SearchContainer>
 
               <Link
@@ -143,9 +141,7 @@ const Login = ({ reset, login, isStaff, isAuthenticated, loginFailed }) => {
                 FORGOT PASSWORD?
               </Link>
               <button
-                disabled={
-                  inputValues.email && inputValues.password ? false : true
-                }
+                disabled={!inputValues.email || !inputValues.password}
                 style={{
                   backgroundColor: "#00ffff",
                   color: "white",

@@ -60,7 +60,7 @@ z-index:16
 
 const FilterForm = (props) => {
   return (
-    <Wrapper>
+    <Wrapper style={{ ...props.style }}>
       <Label>Organization</Label>
       <Input
         className="mb-3"

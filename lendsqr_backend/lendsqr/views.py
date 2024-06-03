@@ -109,7 +109,6 @@ def users(request):
     with pymongo_client() as client:
         db = client["user_details"]
         if request.method == "GET":
-
             page = int(request.GET.get("page", 1))
             search = request.GET.get("search", "")
             regex_pattern = f".*{search}.*"
