@@ -1,11 +1,8 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from datetime import datetime, date
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from .managers import UserManager
-from django.utils import timezone
 
 
 class User(AbstractUser):

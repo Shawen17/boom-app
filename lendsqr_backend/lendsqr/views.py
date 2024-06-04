@@ -1,10 +1,7 @@
-from django.shortcuts import render
 import pymongo
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
-from django.http import JsonResponse
-from decouple import config
 import json
 from .models import User
 import os
@@ -13,10 +10,9 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from rest_framework.permissions import IsAuthenticated
 from contextlib import contextmanager
-import gridfs
-from django.http import FileResponse
 import boto3
 from dotenv import load_dotenv
+from typing import Any
 
 
 load_dotenv()
@@ -40,7 +36,7 @@ def pymongo_client():
 
 @permission_classes([IsAuthenticated])
 @api_view(["POST", "GET"])
-def new_loan(request):
+def new_loan(request: dict[str, Any]) -> dict[str, str]:
     with pymongo_client() as client:
         db = client["user_details"]
         if request.method == "POST":
@@ -94,18 +90,16 @@ def new_loan(request):
 
 @permission_classes([IsAuthenticated])
 @api_view(["GET"])
-def get_staff_status(request):
-    with pymongo_client() as client:
-        db = client["user_details"]
-        email = request.GET.get("email")
-        user = User.objects.get(email=email)
-        is_staff = user.is_staff
-        return Response({"is_staff": is_staff})
+def get_staff_status(request: dict[str, Any]) -> dict[str, str]:
+    email = request.GET.get("email")
+    user = User.objects.get(email=email)
+    is_staff = user.is_staff
+    return Response({"is_staff": is_staff})
 
 
 @permission_classes([IsAuthenticated])
 @api_view(["GET", "POST", "PUT"])
-def users(request):
+def users(request: dict[str, Any]) -> dict[str, Any]:
     with pymongo_client() as client:
         db = client["user_details"]
         if request.method == "GET":
@@ -318,20 +312,18 @@ def users(request):
 
 @permission_classes([IsAuthenticated])
 @api_view(["PUT"])
-def update_status(request, id, action):
+def update_status(request: dict[str, Any], id: str, action: str) -> dict[str, str]:
     with pymongo_client() as client:
         db = client["user_details"]
         user_id = ObjectId(id)
-        update = db["users"].update_one(
-            {"_id": user_id}, {"$set": {"profile.status": action}}
-        )
+        db["users"].update_one({"_id": user_id}, {"$set": {"profile.status": action}})
 
         return Response(status=status.HTTP_201_CREATED)
 
 
 @permission_classes([IsAuthenticated])
 @api_view(["GET"])
-def advance_filter(request):
+def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
     with pymongo_client() as client:
         db = client["user_details"]
         organization = (
@@ -370,7 +362,7 @@ def advance_filter(request):
 
 
 @api_view(["POST", "GET"])
-def assign_user_to_portfolio(request):
+def assign_user_to_portfolio(request: dict[str, Any]) -> dict[str, Any]:
     with pymongo_client() as client:
         db = client["user_details"]
         if request.method == "POST":
