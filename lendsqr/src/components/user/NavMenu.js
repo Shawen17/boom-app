@@ -143,7 +143,7 @@ const NavMenu = (props) => {
       try {
         await axios
           .put(
-            `${process.env.REACT_APP_LENDSQR_API_URL}/api/users/`,
+            `${process.env.REACT_APP_LENDSQR_API_URL}/api/users`,
             body,
             config
           )

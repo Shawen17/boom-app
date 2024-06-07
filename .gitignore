@@ -9,3 +9,4 @@ docker-compose1.yml
 ./lendsqr_backend/.env
 ./lendsqr_backend/db.sqlite3
 ./lendsqr_backend/vercel.json
+.pytest_cache
