@@ -1,44 +1,26 @@
-import pymongo
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 import json
-from .models import User
+from .models import User, LoanModel
 import os
 from django.conf import settings
 from datetime import datetime
 from bson.objectid import ObjectId
 from rest_framework.permissions import IsAuthenticated
-from contextlib import contextmanager
 import boto3
 from dotenv import load_dotenv
 from typing import Any
 
 
 load_dotenv()
-
-
-@contextmanager
-def pymongo_client():
-    db_user = os.getenv("DB_USER")
-    db_password = os.getenv("PASSWORD")
-    db_cluster = os.getenv("CLUSTERNAME")
-
-    client = pymongo.MongoClient(
-        f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority"
-    )
-
-    try:
-        yield client
-    finally:
-        client.close()
+db = settings.MONGO_DB
 
 
 @permission_classes([IsAuthenticated])
 @api_view(["POST", "GET"])
 def new_loan(request: dict[str, Any]) -> dict[str, str]:
-    with pymongo_client() as client:
-        db = client["user_details"]
+    try:
         if request.method == "POST":
             account = (
                 json.loads(request.POST.get("account"))
@@ -76,16 +58,23 @@ def new_loan(request: dict[str, Any]) -> dict[str, str]:
                 "loan": loan,
                 "createdAt": datetime.now(),
             }
+
+            LoanModel.model_validate(data)
             db["loans"].insert_one(data)
 
             return Response(
                 {"message": "Loan request submitted successfully."},
                 status=status.HTTP_201_CREATED,
             )
+
         email = request.GET.get("email")
         loans = db["loans"].find({"loan.email": email})
         all_documents = [{**doc, "_id": str(doc["_id"])} for doc in loans]
         return Response(all_documents, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @permission_classes([IsAuthenticated])
@@ -100,8 +89,7 @@ def get_staff_status(request: dict[str, Any]) -> dict[str, str]:
 @permission_classes([IsAuthenticated])
 @api_view(["GET", "POST", "PUT"])
 def users(request: dict[str, Any]) -> dict[str, Any]:
-    with pymongo_client() as client:
-        db = client["user_details"]
+    try:
         if request.method == "GET":
             page = int(request.GET.get("page", 1))
             search = request.GET.get("search", "")
@@ -157,7 +145,7 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
             if search:
                 users = db["users"].find(query)
             else:
-                users = db["users"].find({})
+                users = db["users"].find({"guarantor": {"$exists": True}})
             per_page = 20
             start_index = (page - 1) * per_page
             end_index = page * per_page
@@ -169,7 +157,6 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
                 {"account.accountBalance": {"$gt": 0}}
             )
             loan = db["users"].count_documents({"account.loanRepayment": {"$gt": 0}})
-
             return Response(
                 {
                     "users_paginated": users_paginated,
@@ -180,7 +167,6 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
                 },
                 status=status.HTTP_200_OK,
             )
-
         if request.method == "POST":
             avatar = request.FILES.get("avatar") if "avatar" in request.FILES else None
             account = (
@@ -213,12 +199,7 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
                 if "profile" in request.POST
                 else None
             )
-            # file_db = client['db_files']
-            # if avatar:
-            #     data = avatar.read()
-            #     fs = gridfs.GridFS(file_db)
-            #     fs.put(data,filename = avatar.name,email = profile['email'])
-            #     profile['avatar'] = avatar.name
+
             if avatar:
                 s3 = boto3.client(
                     "s3",
@@ -242,7 +223,6 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
                 )
                 file_dir = file_dir.replace("\\", "/")
                 profile["avatar"] = file_dir
-
             data = {
                 "profile": profile,
                 "account": account,
@@ -259,7 +239,6 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
             data = request.data
             user_id = data.get("user_id")
             user_id = ObjectId(user_id)
-
             query_criteria = {
                 key: json.loads(data.get(key))
                 for key in data
@@ -284,7 +263,10 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
                         },
                     )
                 except Exception as e:
-                    return Response({"error": str(e)}, status=500)
+                    return Response(
+                        {"message": str(e)},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
                 file_dir = os.path.normpath(
                     os.path.join(settings.MEDIA_URL, "avatars", avatar.name)
                 )
@@ -308,24 +290,24 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
             user = [{**doc, "_id": str(doc["_id"])} for doc in document][0]
 
             return Response(user, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response(
+            {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @permission_classes([IsAuthenticated])
 @api_view(["PUT"])
 def update_status(request: dict[str, Any], id: str, action: str) -> dict[str, str]:
-    with pymongo_client() as client:
-        db = client["user_details"]
-        user_id = ObjectId(id)
-        db["users"].update_one({"_id": user_id}, {"$set": {"profile.status": action}})
-
-        return Response(status=status.HTTP_201_CREATED)
+    user_id = ObjectId(id)
+    db["users"].update_one({"_id": user_id}, {"$set": {"profile.status": action}})
+    return Response(status=status.HTTP_201_CREATED)
 
 
 @permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
-    with pymongo_client() as client:
-        db = client["user_details"]
+    try:
         organization = (
             json.loads(request.GET.get("organization"))
             if "organization" in request.GET
@@ -334,15 +316,12 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
         profile = (
             json.loads(request.GET.get("profile")) if "profile" in request.GET else None
         )
-
         combined = {}
         if profile:
             combined = {**profile}
         if organization:
             combined = {**combined, **organization}
-
         query = {}
-
         for key, value in combined.items():
             if key == "profile" and len(value) > 0:
                 for i, j in value.items():
@@ -354,17 +333,18 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
                     if j != "":
                         query_key = f"organization.{i}"
                         query[query_key] = j
-
         users = db["users"].find({"$and": [query]})
         all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users]
-
         return Response(all_documents, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST", "GET"])
 def assign_user_to_portfolio(request: dict[str, Any]) -> dict[str, Any]:
-    with pymongo_client() as client:
-        db = client["user_details"]
+    try:
         if request.method == "POST":
             organization = (
                 json.loads(request.POST.get("organization"))
@@ -386,7 +366,6 @@ def assign_user_to_portfolio(request: dict[str, Any]) -> dict[str, Any]:
                 if "profile" in request.POST
                 else None
             )
-
             data = {
                 "profile": profile,
                 "organization": organization,
@@ -400,5 +379,8 @@ def assign_user_to_portfolio(request: dict[str, Any]) -> dict[str, Any]:
             email = request.GET.get("email")
             document = db["users"].find({"profile.email": email})
             portfolio = [{**doc, "_id": str(doc["_id"])} for doc in document][0]
-
             return Response(portfolio, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

@@ -2,6 +2,8 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
+import pymongo
+
 
 load_dotenv()
 
@@ -94,6 +96,16 @@ WSGI_APPLICATION = "backend.wsgi.application"
 #         },
 #     }
 # }
+
+# need to pass as env in dockerfile from jenkins
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("PASSWORD")
+db_cluster = os.getenv("CLUSTERNAME")
+
+MONGO_CLIENT = pymongo.MongoClient(
+    f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority"
+)
+MONGO_DB = MONGO_CLIENT["user_details"]
 
 DATABASES = {
     "default": {

@@ -6,7 +6,7 @@ import {
   HeaderValue,
   HorizontalLine,
 } from "../menu/StyledMenu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { banks, relationships } from "../utility/AdminAction";
 import { Form } from "reactstrap";
 import axios from "axios";
@@ -22,16 +22,19 @@ import {
   Box,
   MiniContainer,
 } from "../../components/Styled";
-import { useNavigate } from "react-router-dom";
 import Loading from "../Loading";
+import { logout } from "../../action/auth";
+import { connect } from "react-redux";
 
-const LoanForm = ({ user, update_portfolio }) => {
-  const navigate = useNavigate();
+const LoanForm = ({ user, update_portfolio, logout }) => {
   document.title = "new loan";
   const [error, setError] = useState("");
   const [inputs, setInputs] = useState({});
   const [msg, setMsg] = useState("");
   const [click, setClicked] = useState(false);
+  console.log(user);
+
+  useEffect(() => {}, []);
 
   const handleChange = (event) => {
     setError("");
@@ -155,7 +158,7 @@ const LoanForm = ({ user, update_portfolio }) => {
           "Cannot make a new loan request while you have an active loan."
         );
       } else if (error.response.status === 401) {
-        navigate("/");
+        logout();
       } else {
         setError("An error occurred. Please try again later.");
       }
@@ -437,4 +440,4 @@ const LoanForm = ({ user, update_portfolio }) => {
   );
 };
 
-export default LoanForm;
+export default connect(null, { logout })(LoanForm);

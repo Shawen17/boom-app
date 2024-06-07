@@ -41,3 +41,18 @@ class MongoConnection:
 
 # client.shutdown()
 # Use mongo_connection.get_db('your_db_name') to get the database instance and perform operations
+
+# @contextmanager
+# def pymongo_client():
+#     db_user = os.getenv("DB_USER")
+#     db_password = os.getenv("PASSWORD")
+#     db_cluster = os.getenv("CLUSTERNAME")
+
+#     client = pymongo.MongoClient(
+#         f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority"
+#     )
+
+#     try:
+#         yield client
+#     finally:
+#         client.close()

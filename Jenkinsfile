@@ -29,6 +29,12 @@ pipeline {
             }
         }
 
+        stage('Perform Test with Pytest') {
+            steps {
+                bat 'cd lendsqr_backend && pytest'
+            }
+        }
+
         stage('Build Docker Images in Parallel') {
             parallel {
                 stage('Build lendsqr_backend Image') {

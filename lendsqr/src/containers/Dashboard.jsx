@@ -167,10 +167,12 @@ const Dashboard = ({ logout }) => {
           .catch((error) => {
             setModal(false);
             setError(error);
+            logout();
           });
       } catch (error) {
         setModal(false);
         setError(error);
+        logout();
       }
     } else {
       logout();

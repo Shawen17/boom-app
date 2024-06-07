@@ -41,4 +41,6 @@ pymongo[srv]
 boto3
 django-storages
 python-dotenv
-
+pytest
+pytest-django
+pydantic
