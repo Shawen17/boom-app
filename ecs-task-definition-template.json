@@ -1,0 +1,56 @@
+{
+  "family": "boom-app-family",
+  "networkMode": "bridge",
+  "containerDefinitions": [
+    {
+      "name": "lendsqr_backend",
+      "image": "",
+      "memory": 512,
+      "cpu": 256,
+      "environment": [
+        {
+          "name": "DB_USER",
+          "value": "placeholder"
+        },
+        {
+          "name": "PASSWORD",
+          "value": "placeholder"
+        },
+        {
+          "name": "CLUSTERNAME",
+          "value": "placeholder"
+        }
+      ],
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000
+        }
+      ]
+    },
+    {
+      "name": "lendsqr",
+      "image": "",
+      "memory": 512,
+      "cpu": 256,
+      "environment": [
+        {
+          "name": "REACT_APP_LENDSQR_API_URL",
+          "value": "placeholder"
+        },
+        {
+          "name": "REACT_APP_MEDIA_URL",
+          "value": "placeholder"
+        }
+      ],
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000
+        }
+      ]
+    }
+  ]
+}

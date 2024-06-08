@@ -19,6 +19,9 @@ pipeline {
         AWS_ACCESS_KEY_ID=credentials('AWS_ACCESS_KEY_ID')
         REACT_APP_LENDSQR_API_URL=credentials('REACT_APP_LENDSQR_API_URL')
         REACT_APP_MEDIA_URL=credentials('REACT_APP_MEDIA_URL')
+        AWS_REGION = "eu-north-1"
+        ECS_CLUSTER = "boom-complete-app"
+        ECS_TASK_DEFINITION_FAMILY = "boom-app-family"
         
     }
 
@@ -119,56 +122,110 @@ pipeline {
                 }
             }
         }
-        
-        stage('Check and Stop Containers') {
+        stage('Register/Update ECS Task Definition') {
             steps {
-                bat '''
-                    powershell -Command "docker container ls -q | ForEach-Object { docker stop $_ }"
-                '''
-            }
-        }
-        stage('Remove All Containers') {
-            steps {
-                bat '''
-                    powershell -Command "docker rm $(docker ps -q -a) -f"
-                '''
-            }
-        }
-        stage('Remove All Images') {
-            steps {
-                bat '''
-                    powershell -Command " docker image rm -f $(docker image ls -q)"
-                '''
-            }
-        }
-        
-        stage('Run Containers') {
-            environment{
-                LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
-                LENDSQR_IMAGE = "${LendsqrImage}"
-                TAG = "${env.BUILD_ID}"
-            }
-            steps {
-                
                 script {
-                    withEnv([
-                        "DB_USER=${DB_USER}",
-                        "PASSWORD=${PASSWORD}",
-                        "CLUSTERNAME=${CLUSTERNAME}",
-                        "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
-                        "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
-                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
-                        "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
-                        "TAG=${TAG}"
+                    def taskDefinitionTemplate = readFile 'ecs-task-definition-template.json'
+                    def taskDefinitionJson = readJSON text: taskDefinitionTemplate
+
+                    taskDefinitionJson.containerDefinitions[0].image = LendsqrBackendImage
+                    taskDefinitionJson.containerDefinitions[1].image = LendsqrImage
+
+                    // Update environment variables
+                    taskDefinitionJson.containerDefinitions[0].environment.find { it.name == 'DB_USER' }.value = "${DB_USER}"
+                    taskDefinitionJson.containerDefinitions[0].environment.find { it.name == 'PASSWORD' }.value = "${PASSWORD}"
+                    taskDefinitionJson.containerDefinitions[0].environment.find { it.name == 'CLUSTERNAME' }.value = "${CLUSTERNAME}"
+                    taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_LENDSQR_API_URL' }.value = "${REACT_APP_LENDSQR_API_URL}"
+                    taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_MEDIA_URL' }.value = "${REACT_APP_MEDIA_URL}"
+
+                    def updatedTaskDefinition = writeJSON returnText: true, json: taskDefinitionJson
+
+                    writeFile file: 'ecs-task-definition.json', text: updatedTaskDefinition
+
+                    withCredentials([
+                        string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
                     ]) {
-                        bat '''
-                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
-                        docker compose -f docker-compose.run.yml up -d
+                         bat '''
+                        set AWS_ACCESS_KEY_ID=%AWS_ACCESS_KEY_ID%
+                        set AWS_SECRET_ACCESS_KEY=%AWS_SECRET_ACCESS_KEY%
+                        aws ecs register-task-definition ^
+                            --family %ECS_TASK_DEFINITION_FAMILY% ^
+                            --cli-input-json file://ecs-task-definition.json ^
+                            --region %AWS_REGION%
                         '''
                     }
                 }
             }
         }
+        stage('Deploy to ECS') {
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
+                        bat '''
+                        aws ecs update-service ^
+                            --cluster ${ECS_CLUSTER} ^
+                            --service your-ecs-service-name ^
+                            --force-new-deployment ^
+                            --region %AWS_REGION%
+                        '''
+                    }
+                }
+            }
+        }
+        
+    //     stage('Check and Stop Containers') {
+    //         steps {
+    //             bat '''
+    //                 powershell -Command "docker container ls -q | ForEach-Object { docker stop $_ }"
+    //             '''
+    //         }
+    //     }
+    //     stage('Remove All Containers') {
+    //         steps {
+    //             bat '''
+    //                 powershell -Command "docker rm $(docker ps -q -a) -f"
+    //             '''
+    //         }
+    //     }
+    //     stage('Remove All Images') {
+    //         steps {
+    //             bat '''
+    //                 powershell -Command " docker image rm -f $(docker image ls -q)"
+    //             '''
+    //         }
+    //     }
+        
+    //     stage('Run Containers') {
+    //         environment{
+    //             LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
+    //             LENDSQR_IMAGE = "${LendsqrImage}"
+    //             TAG = "${env.BUILD_ID}"
+    //         }
+    //         steps {
+                
+    //             script {
+    //                 withEnv([
+    //                     "DB_USER=${DB_USER}",
+    //                     "PASSWORD=${PASSWORD}",
+    //                     "CLUSTERNAME=${CLUSTERNAME}",
+    //                     "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
+    //                     "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
+    //                     "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+    //                     "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
+    //                     "TAG=${TAG}"
+    //                 ]) {
+    //                     bat '''
+    //                     echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
+    //                     docker compose -f docker-compose.run.yml up -d
+    //                     '''
+    //                 }
+    //             }
+    //         }
+    //     }
     }
 
     post {
