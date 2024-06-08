@@ -32,7 +32,6 @@ const LoanForm = ({ user, update_portfolio, logout }) => {
   const [inputs, setInputs] = useState({});
   const [msg, setMsg] = useState("");
   const [click, setClicked] = useState(false);
-  console.log(user);
 
   useEffect(() => {}, []);
 
