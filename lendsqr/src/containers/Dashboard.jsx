@@ -211,26 +211,26 @@ const Dashboard = ({ logout }) => {
             </h3>
             <Dashstats>
               <Stats>
-                <StatIcon src="/static/icons/user.png" alt="user" />
+                <StatIcon src="/static/icons/user.PNG" alt="user" />
                 <StatDesc>users</StatDesc>
                 <StatNum>{raw.items.all_users}</StatNum>
               </Stats>
               <Stats>
                 <StatIcon
-                  src="/static/icons/user_active.png"
+                  src="/static/icons/user_active.PNG"
                   alt="active icon"
                 />
                 <StatDesc>ACTIVE USERS</StatDesc>
                 <StatNum>{raw.items.active}</StatNum>
               </Stats>
               <Stats>
-                <StatIcon src="/static/icons/user_loan.png" alt="loan icon" />
+                <StatIcon src="/static/icons/user_loan.PNG" alt="loan icon" />
                 <StatDesc>USERS WITH LOANS</StatDesc>
                 <StatNum>{raw.items.loan}</StatNum>
               </Stats>
               <Stats>
                 <StatIcon
-                  src="/static/icons/user_savings.png"
+                  src="/static/icons/user_savings.PNG"
                   alt="savings icon"
                 />
                 <StatDesc>USERS WITH SAVINGS</StatDesc>

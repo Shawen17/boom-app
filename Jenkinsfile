@@ -47,7 +47,7 @@ pipeline {
                                 "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}",
                                 "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}",
                                 ]){
-                                bat 'docker compose -f docker-compose.build.yml build --no-cache lendsqr_backend'
+                                bat 'docker compose -f docker-compose.build.yml build lendsqr_backend'
                             }
                         }
                     }
@@ -55,7 +55,7 @@ pipeline {
                 stage('Build lendsqr Image') {
                     steps {
                         script {
-                           bat 'docker compose -f docker-compose.build.yml build --no-cache lendsqr'
+                           bat 'docker compose -f docker-compose.build.yml build lendsqr'
                         }
                     }
                 }
