@@ -8,24 +8,12 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
-    path(
-        "api/users",
-        views.users,
-    ),
-    path("api/update/user/<str:id>/<str:action>", views.update_status),
-    path("api/advance-filter/", views.advance_filter),
-    path(
-        "api/get_staff_status/",
-        views.get_staff_status,
-    ),
-    path(
-        "api/add-staff-portfolio/",
-        views.assign_user_to_portfolio,
-    ),
-    path(
-        "api/loan/",
-        views.new_loan,
-    ),
+    path("api/users", views.users, name="users"),
+    path("api/update/user/<str:id>/<str:action>", views.update_status, name="status"),
+    path("api/advance-filter/", views.advance_filter, name="advance_filter"),
+    path("api/get_staff_status/", views.get_staff_status, name="staff_staus"),
+    path("api/add-staff-portfolio/", views.assign_user_to_portfolio, name="porfolio"),
+    path("api/loan/", views.new_loan, name="loan"),
 ]
 
 if settings.DEBUG:
