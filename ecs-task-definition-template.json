@@ -52,5 +52,9 @@
         }
       ]
     }
-  ]
+  ],
+
+  "executionRoleArn": "arn:aws:iam::378523290404:role/ecsTaskExecutionRole",
+  "runtimePlatform": { "operatingSystemFamily": "WINDOWS_SERVER_2019_CORE" },
+  "requiresCompatibilities": ["FARGATE"]
 }
