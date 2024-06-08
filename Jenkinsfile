@@ -126,7 +126,8 @@ pipeline {
             steps {
                 script {
                     def taskDefinitionTemplate = readFile 'ecs-task-definition-template.json'
-                    def taskDefinitionJson = readJSON text: taskDefinitionTemplate
+                    def jsonSlurper = new JsonSlurper()
+                    def taskDefinitionJson = jsonSlurper.parseText(taskDefinitionTemplate)
 
                     taskDefinitionJson.containerDefinitions[0].image = LendsqrBackendImage
                     taskDefinitionJson.containerDefinitions[1].image = LendsqrImage
