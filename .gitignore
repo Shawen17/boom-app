@@ -5,8 +5,13 @@ docker-compose1.yml
 ./lendsqr/Dockerfile1
 ./lendsqr/.env
 ./lendsqr_backend/lendenv
+./lendsqr_backend/backend/__pycache__
+./lendsqr_backend/lendsqr/__pycache__
 ./lendsqr_backend/media
 ./lendsqr_backend/.env
 ./lendsqr_backend/db.sqlite3
 ./lendsqr_backend/vercel.json
+./lendsqr_backend/.pytest_cache
+./lendsqr_backend/.coverage
+./lendsqr_backend/htmlcov
 .pytest_cache
