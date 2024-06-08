@@ -135,11 +135,7 @@ const AccountUpdate = ({ get_portfolio, user }) => {
 
     try {
       await axios
-        .put(
-          `${process.env.REACT_APP_LENDSQR_API_URL}/api/users/`,
-          body,
-          config
-        )
+        .put(`${process.env.REACT_APP_LENDSQR_API_URL}/api/users`, body, config)
         .then((response) => response)
         .catch((error) => {
           setError(error);
