@@ -15,14 +15,13 @@ import {
   Box,
   MiniContainer,
 } from "../../components/Styled";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { get_portfolio } from "../../action/auth";
+import { get_portfolio, logout } from "../../action/auth";
 import { connect } from "react-redux";
 
-const AccountUpdate = ({ get_portfolio, user }) => {
+const AccountUpdate = ({ logout, get_portfolio, user }) => {
   document.title = "update your profile";
-  const navigate = useNavigate();
+
   const [error, setError] = useState("");
   const [inputs, setInputs] = useState({});
   const [msg, setMsg] = useState("");
@@ -139,13 +138,14 @@ const AccountUpdate = ({ get_portfolio, user }) => {
         .then((response) => response)
         .catch((error) => {
           setError(error);
+          logout();
         });
       get_portfolio(data.profile.email);
       setUpdated(!updated);
       setMsg("Details Updated successfully");
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        navigate("/");
+        logout();
       } else {
         setError("Error occurred but no response was received:", error);
       }
@@ -447,7 +447,9 @@ const AccountUpdate = ({ get_portfolio, user }) => {
 };
 
 const mapStateToProps = (state) => ({
-  user: state.auth && state.auth.portfolio ? state.auth.portfolio : "",
+  user: state.auth && state.auth.portfolio ? state.auth.portfolio : {},
 });
 
-export default connect(mapStateToProps, { get_portfolio })(AccountUpdate);
+export default connect(mapStateToProps, { get_portfolio, logout })(
+  AccountUpdate
+);
