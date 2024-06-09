@@ -1,5 +1,6 @@
 def LendsqrBackendImage
 def LendsqrImage
+import groovy.json.JsonSlurper
 
 pipeline {
     agent any
