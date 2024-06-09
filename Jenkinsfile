@@ -1,6 +1,7 @@
 def LendsqrBackendImage
 def LendsqrImage
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 pipeline {
     agent any
@@ -140,8 +141,7 @@ pipeline {
                     taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_LENDSQR_API_URL' }.value = "${REACT_APP_LENDSQR_API_URL}"
                     taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_MEDIA_URL' }.value = "${REACT_APP_MEDIA_URL}"
 
-                    def updatedTaskDefinition = writeJSON returnText: true, json: taskDefinitionJson
-
+                    def updatedTaskDefinition = JsonOutput.toJson(taskDefinitionJson)
                     writeFile file: 'ecs-task-definition.json', text: updatedTaskDefinition
 
                     withCredentials([
@@ -170,7 +170,8 @@ pipeline {
                         bat '''
                         aws ecs update-service ^
                             --cluster ${ECS_CLUSTER} ^
-                            --service your-ecs-service-name ^
+                            --service boom-app-service ^
+                            --launch-type FARGATE ^
                             --force-new-deployment ^
                             --region %AWS_REGION%
                         '''
