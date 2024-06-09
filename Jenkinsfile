@@ -128,7 +128,7 @@ pipeline {
             steps {
                 script {
                     def taskDefinitionTemplate = readFile 'ecs-task-definition-template.json'
-                    def jsonSlurper = new JsonSlurper()
+                    def jsonSlurper = new groovy.json.JsonSlurper()
                     def taskDefinitionJson = jsonSlurper.parseText(taskDefinitionTemplate)
 
                     taskDefinitionJson.containerDefinitions[0].image = LendsqrBackendImage
@@ -141,7 +141,7 @@ pipeline {
                     taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_LENDSQR_API_URL' }.value = "${REACT_APP_LENDSQR_API_URL}"
                     taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_MEDIA_URL' }.value = "${REACT_APP_MEDIA_URL}"
 
-                    def updatedTaskDefinition = JsonOutput.toJson(taskDefinitionJson)
+                    def updatedTaskDefinition = groovy.json.JsonOutput.toJson(taskDefinitionJson)
                     writeFile file: 'ecs-task-definition.json', text: updatedTaskDefinition
 
                     withCredentials([
