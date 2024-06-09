@@ -168,10 +168,13 @@ pipeline {
                         string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
                     ]) {
                         bat '''
+                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         aws ecs update-service ^
                             --cluster ${ECS_CLUSTER} ^
-                            --service boom-app-service ^
+                            --service-name second-service ^
+                            --task-definition boom-app-family ^
                             --launch-type FARGATE ^
+                            --desired-count 1 ^
                             --force-new-deployment ^
                             --region %AWS_REGION%
                         '''

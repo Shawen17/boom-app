@@ -27,7 +27,10 @@
           "containerPort": 8000,
           "hostPort": 8000
         }
-      ]
+      ],
+      "repositoryCredentials": {
+        "credentialsParameter": "arn:aws:secretsmanager:eu-north-1:378523290404:secret:ghcr-token-EWJNhn"
+      }
     },
     {
       "name": "lendsqr",
@@ -50,12 +53,14 @@
           "containerPort": 3000,
           "hostPort": 3000
         }
-      ]
+      ],
+      "repositoryCredentials": {
+        "credentialsParameter": "arn:aws:secretsmanager:eu-north-1:378523290404:secret:ghcr-token-EWJNhn"
+      }
     }
   ],
   "cpu": "0.25 vCPU",
   "memory": "0.5 GB",
-  "executionRoleArn": "arn:aws:iam::378523290404:role/ECSExecutionRole",
   "runtimePlatform": { "operatingSystemFamily": "WINDOWS_SERVER_2019_CORE" },
   "requiresCompatibilities": ["FARGATE"]
 }
