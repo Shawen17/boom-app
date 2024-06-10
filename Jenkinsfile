@@ -171,6 +171,11 @@ pipeline {
                         string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
                         string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
                     ]) {
+
+                        bat '''
+                            for /f "tokens=*" %%i in ('aws ecs describe-task-definition --task-definition %ECS_TASK_DEFINITION_FAMILY% --query "taskDefinition.taskDefinitionArn" --output text') do set TASK_DEFINITION_ARN=%%i
+                        '''
+
                         bat '''
                         
                         aws ecs update-service ^
