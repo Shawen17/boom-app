@@ -143,7 +143,7 @@ pipeline {
 
                     def updatedTaskDefinition = JsonOutput.toJson(taskDefinitionJson)
                     String prettyJson = StringEscapeUtils.unescapeJavaScript(JsonOutput.prettyPrint(updatedTaskDefinition))
-                    
+                    echo prettyJson
                     File newFile = new File("ecs-task-definition.json")
                     newFile.write(prettyJson)
                     // writeFile file: 'ecs-task-definition.json', text: updatedTaskDefinition
