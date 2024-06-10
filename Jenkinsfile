@@ -142,8 +142,8 @@ pipeline {
                     taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_MEDIA_URL' }.value = "${REACT_APP_MEDIA_URL}"
 
                     def updatedTaskDefinition = JsonOutput.toJson(taskDefinitionJson)
-                    // String prettyJson = StringEscapeUtils.unescapeJavaScript(JsonOutput.prettyPrint(updatedTaskDefinition))
-                    String prettyJson = escapeJson(JsonOutput.prettyPrint(updatedTaskDefinition))
+                    String prettyJson = StringEscapeUtils.unescapeJavaScript(JsonOutput.prettyPrint(updatedTaskDefinition))
+                    
                     File newFile = new File("ecs-task-definition.json")
                     newFile.write(prettyJson)
                     // writeFile file: 'ecs-task-definition.json', text: updatedTaskDefinition
