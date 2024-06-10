@@ -23,7 +23,7 @@ pipeline {
         REACT_APP_MEDIA_URL=credentials('REACT_APP_MEDIA_URL')
         AWS_REGION = "eu-north-1"
         ECS_CLUSTER = "boom-complete-app"
-        ECS_TASK_DEFINITION_FAMILY = "boom-app-family"
+        ECS_TASK_DEFINITION_FAMILY = "second-task"
         
     }
 
@@ -142,7 +142,8 @@ pipeline {
                     taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_MEDIA_URL' }.value = "${REACT_APP_MEDIA_URL}"
 
                     def updatedTaskDefinition = JsonOutput.toJson(taskDefinitionJson)
-                    String prettyJson = StringEscapeUtils.unescapeJavaScript(JsonOutput.prettyPrint(updatedTaskDefinition))
+                    // String prettyJson = StringEscapeUtils.unescapeJavaScript(JsonOutput.prettyPrint(updatedTaskDefinition))
+                    String prettyJson = escapeJson(JsonOutput.prettyPrint(updatedTaskDefinition))
                     File newFile = new File("ecs-task-definition.json")
                     newFile.write(prettyJson)
                     // writeFile file: 'ecs-task-definition.json', text: updatedTaskDefinition
@@ -171,11 +172,11 @@ pipeline {
                         string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
                     ]) {
                         bat '''
-                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
+                        
                         aws ecs update-service ^
                             --cluster ${ECS_CLUSTER} ^
-                            --service-name boom-app-service ^
-                            --task-definition boom-app-family ^
+                            --service-name boom-service ^
+                            --task-definition %ECS_TASK_DEFINITION_FAMILY% ^
                             --launch-type FARGATE ^
                             --desired-count 1 ^
                             --force-new-deployment ^
