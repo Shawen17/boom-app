@@ -171,7 +171,7 @@ pipeline {
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         aws ecs update-service ^
                             --cluster ${ECS_CLUSTER} ^
-                            --service-name second-service ^
+                            --service-name boom-app-service ^
                             --task-definition boom-app-family ^
                             --launch-type FARGATE ^
                             --desired-count 1 ^
