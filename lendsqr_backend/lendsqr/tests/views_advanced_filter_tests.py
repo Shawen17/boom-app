@@ -6,7 +6,7 @@ User = get_user_model()
 
 
 @pytest.mark.parametrize(
-    "profile, organization,password, query, validity",
+    "profile, organization,password, query, validity,page",
     [
         (
             {
@@ -21,6 +21,7 @@ User = get_user_model()
             "admin",
             {"email": "test@gmail.com", "status": "Active"},
             0,
+            1,
         ),
         (
             {
@@ -33,7 +34,8 @@ User = get_user_model()
             },
             {},
             "admin",
-            {"email": "shawen022@yahoo.com", "status": "Active"},
+            {"userName": "jaycee", "status": "Active"},
+            1,
             1,
         ),
         (
@@ -49,6 +51,7 @@ User = get_user_model()
             "admin",
             {},
             0,
+            1,
         ),
         (
             {
@@ -63,13 +66,16 @@ User = get_user_model()
             "admin",
             {"status": "Blacklisted"},
             1,
+            1,
         ),
         # Add more test cases if needed
     ],
 )
 @pytest.mark.fast
 @pytest.mark.django_db
-def test_advanced_filter(client, profile, organization, password, query, validity):
+def test_advanced_filter(
+    client, profile, organization, password, query, validity, page
+):
     User.objects.create_user(
         first_name=profile["firstName"],
         last_name=profile["lastName"],
@@ -87,7 +93,7 @@ def test_advanced_filter(client, profile, organization, password, query, validit
     token = response.data["access"]
 
     print("========login successful===========")
-    url = "/api/advance-filter/"  # Modify the URL according to your API endpoint
+    url = f"/api/advance-filter?page=${page}"  # Modify the URL according to your API endpoint
     data = {
         "profile": json.dumps(query),
         "organization": json.dumps(organization),
