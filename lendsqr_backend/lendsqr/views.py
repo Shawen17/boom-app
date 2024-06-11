@@ -93,70 +93,110 @@ def users(request: dict[str, Any]) -> dict[str, Any]:
         if request.method == "GET":
             page = int(request.GET.get("page", 1))
             search = request.GET.get("search", "")
-            regex_pattern = f".*{search}.*"
-            query = {
-                "$or": [
-                    {"profile.email": {"$regex": regex_pattern, "$options": "i"}},
-                    {"profile.userName": {"$regex": regex_pattern, "$options": "i"}},
-                    {"profile.firstName": {"$regex": regex_pattern, "$options": "i"}},
-                    {"profile.lastName": {"$regex": regex_pattern, "$options": "i"}},
-                    {"profile.status": {"$regex": regex_pattern, "$options": "i"}},
-                    {"profile.address": {"$regex": regex_pattern, "$options": "i"}},
-                    {"account.accountName": {"$regex": regex_pattern, "$options": "i"}},
-                    {
-                        "guarantor.guaAddress": {
-                            "$regex": regex_pattern,
-                            "$options": "i",
-                        }
-                    },
-                    {
-                        "guarantor.guaFirstName": {
-                            "$regex": regex_pattern,
-                            "$options": "i",
-                        }
-                    },
-                    {
-                        "guarantor.guaLastName": {
-                            "$regex": regex_pattern,
-                            "$options": "i",
-                        }
-                    },
-                    {
-                        "organization.orgName": {
-                            "$regex": regex_pattern,
-                            "$options": "i",
-                        }
-                    },
-                    {
-                        "organization.employmentStatus": {
-                            "$regex": regex_pattern,
-                            "$options": "i",
-                        }
-                    },
-                    {"organization.sector": {"$regex": regex_pattern, "$options": "i"}},
-                    {
-                        "organization.officeEmail": {
-                            "$regex": regex_pattern,
-                            "$options": "i",
-                        }
-                    },
-                ]
-            }
+
             if search:
+                regex_pattern = f".*{search}.*"
+                query = {
+                    "$and": [
+                        {"guarantor": {"$exists": True}},
+                        {
+                            "$or": [
+                                {
+                                    "profile.email": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "profile.userName": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "profile.firstName": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "profile.lastName": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "profile.status": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "profile.address": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "organization.orgName": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "organization.employmentStatus": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "organization.sector": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                                {
+                                    "organization.officeEmail": {
+                                        "$regex": regex_pattern,
+                                        "$options": "i",
+                                    }
+                                },
+                            ]
+                        },
+                    ]
+                }
                 users = db["users"].find(query)
+
             else:
                 users = db["users"].find({"guarantor": {"$exists": True}})
             per_page = 20
             start_index = (page - 1) * per_page
             end_index = page * per_page
             all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users]
+
             users_paginated = all_documents[start_index:end_index]
             all_users = len(all_documents)
-            active = db["users"].count_documents({"profile.status": "Active"})
-            savings = db["users"].count_documents(
-                {"account.accountBalance": {"$gt": 0}}
+            active = len(
+                [
+                    item
+                    for item in all_documents
+                    if item["profile"]["status"] == "Active"
+                ]
             )
-            loan = db["users"].count_documents({"account.loanRepayment": {"$gt": 0}})
+            loan = len(
+                [
+                    item
+                    for item in all_documents
+                    if "account" in item and int(item["account"]["loanRepayment"]) > 0
+                ]
+            )
+            savings = len(
+                [
+                    item
+                    for item in all_documents
+                    if "account" in item and int(item["account"]["accountBalance"]) > 0
+                ]
+            )
             return Response(
                 {
                     "users_paginated": users_paginated,
@@ -308,6 +348,7 @@ def update_status(request: dict[str, Any], id: str, action: str) -> dict[str, st
 @api_view(["GET"])
 def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
     try:
+        page = int(request.GET.get("page", 1))
         organization = (
             json.loads(request.GET.get("organization"))
             if "organization" in request.GET
@@ -321,7 +362,7 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
             combined = {**profile}
         if organization:
             combined = {**combined, **organization}
-        query = {}
+        query = {"guarantor": {"$exists": True}}
         for key, value in combined.items():
             if key == "profile" and len(value) > 0:
                 for i, j in value.items():
@@ -334,8 +375,39 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
                         query_key = f"organization.{i}"
                         query[query_key] = j
         users = db["users"].find({"$and": [query]})
-        all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users]
-        return Response(all_documents, status=status.HTTP_200_OK)
+        per_page = 20
+        start_index = (page - 1) * per_page
+        end_index = page * per_page
+        all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users if users]
+        users_paginated = all_documents[start_index:end_index]
+        all_users = len(all_documents)
+        active = len(
+            [item for item in all_documents if item["profile"]["status"] == "Active"]
+        )
+        loan = len(
+            [
+                item
+                for item in all_documents
+                if int(item["account"]["loanRepayment"]) > 0
+            ]
+        )
+        savings = len(
+            [
+                item
+                for item in all_documents
+                if int(item["account"]["accountBalance"]) > 0
+            ]
+        )
+        return Response(
+            {
+                "users_paginated": users_paginated,
+                "all_users": all_users,
+                "active": active,
+                "loan": loan,
+                "savings": savings,
+            },
+            status=status.HTTP_200_OK,
+        )
     except Exception as e:
         return Response(
             {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR

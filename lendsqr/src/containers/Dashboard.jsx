@@ -8,6 +8,8 @@ import { motion } from "framer-motion";
 import Loading from "../components/Loading";
 import { logout } from "../action/auth";
 import { connect } from "react-redux";
+import { UserContext } from "../components/ContextManager";
+import { mergeFields } from "../components/utility/AdminAction";
 
 const Container = styled.div`
   padding: 8px;
@@ -111,8 +113,28 @@ const Dashboard = ({ logout }) => {
       savings: 0,
     },
   });
+  const [clicked, setClicked] = useState(false);
+  const [inputs, setInputs] = useState({});
+  const [filtered, setFiltered] = useState(0);
 
   const [display, setDisplay] = useState(false);
+
+  const handleChange = (item) => {
+    setInputs(item);
+  };
+
+  const onFilter = () => {
+    setFiltered(filtered + 1);
+  };
+
+  const onReset = () => {
+    setInputs({});
+    setFiltered(0);
+  };
+
+  const filterClick = () => {
+    setClicked(!clicked);
+  };
 
   const onMenuClick = () => {
     setDisplay(!display);
@@ -155,20 +177,54 @@ const Dashboard = ({ logout }) => {
 
     if (token) {
       try {
-        axios
-          .get(
-            `${process.env.REACT_APP_LENDSQR_API_URL}/api/users?page=${page}&search=${search}`,
-            config
-          )
-          .then((res) => {
-            setModal(false);
-            setRaw({ items: res.data });
-          })
-          .catch((error) => {
-            setModal(false);
-            setError(error);
-            logout();
-          });
+        if (clicked && filtered) {
+          const profileKeys = ["userName", "status", "email", "phoneNumber"];
+          const organizationKeys = ["orgName"];
+          const profile = mergeFields(inputs, profileKeys);
+          const organization = mergeFields(inputs, organizationKeys);
+
+          const config = {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Accept: "application/json",
+            },
+          };
+          axios
+            .get(
+              `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter?page=${page}`,
+              {
+                params: {
+                  profile: JSON.stringify({ profile }),
+                  organization: JSON.stringify({ organization }),
+                },
+              },
+              config
+            )
+            .then((response) => {
+              setModal(false);
+              setRaw({ items: response.data });
+            })
+            .catch((error) => {
+              setModal(false);
+              setError(error);
+              logout();
+            });
+        } else {
+          axios
+            .get(
+              `${process.env.REACT_APP_LENDSQR_API_URL}/api/users?page=${page}&search=${search}`,
+              config
+            )
+            .then((res) => {
+              setModal(false);
+              setRaw({ items: res.data });
+            })
+            .catch((error) => {
+              setModal(false);
+              setError(error);
+              logout();
+            });
+        }
       } catch (error) {
         setModal(false);
         setError(error);
@@ -177,81 +233,95 @@ const Dashboard = ({ logout }) => {
     } else {
       logout();
     }
-  }, [page, logout, token, searchValue, statusUpated]);
+  }, [
+    page,
+    logout,
+    token,
+    searchValue,
+    statusUpated,
+    filtered,
+    inputs,
+    clicked,
+  ]);
 
   return (
-    <motion.div
-      initial={{ scale: 0 }}
-      animate={{ rotate: 0, scale: 1 }}
-      transition={{
-        type: "spring",
-        stiffness: 260,
-        damping: 20,
-      }}
-    >
-      <Container>
-        <Left className={display ? "appear" : "disappear"}>
-          <SideBar />
-        </Left>
-        <Right>
-          <NavBar
-            searchValue={searchValue}
-            HandleInputChange={HandleInputChange}
-            onMenuClick={onMenuClick}
-          />
-          <div style={{ backgroundColor: "whitesmoke" }}>
-            <h3
-              style={{
-                color: "#0050B5",
-                marginLeft: "10px",
-                paddingTop: "25px",
-              }}
-            >
-              Users
-            </h3>
-            <Dashstats>
-              <Stats>
-                <StatIcon src="/static/icons/user.PNG" alt="user" />
-                <StatDesc>users</StatDesc>
-                <StatNum>{raw.items.all_users}</StatNum>
-              </Stats>
-              <Stats>
-                <StatIcon
-                  src="/static/icons/user_active.PNG"
-                  alt="active icon"
-                />
-                <StatDesc>ACTIVE USERS</StatDesc>
-                <StatNum>{raw.items.active}</StatNum>
-              </Stats>
-              <Stats>
-                <StatIcon src="/static/icons/user_loan.PNG" alt="loan icon" />
-                <StatDesc>USERS WITH LOANS</StatDesc>
-                <StatNum>{raw.items.loan}</StatNum>
-              </Stats>
-              <Stats>
-                <StatIcon
-                  src="/static/icons/user_savings.PNG"
-                  alt="savings icon"
-                />
-                <StatDesc>USERS WITH SAVINGS</StatDesc>
-                <StatNum>{raw.items.savings}</StatNum>
-              </Stats>
-            </Dashstats>
-            {error}
-            {modal && Loading()}
-            <Users
-              page={page}
-              PageSize={PageSize}
-              totalCount={raw.items.all_users}
-              prevPage={prevPage}
-              nextPage={nextPage}
-              currentData={raw.items.users_paginated}
-              updateStatus={updateStatus}
+    <UserContext.Provider value={raw.items}>
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ rotate: 0, scale: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+        }}
+      >
+        <Container>
+          <Left className={display ? "appear" : "disappear"}>
+            <SideBar />
+          </Left>
+          <Right>
+            <NavBar
+              searchValue={searchValue}
+              HandleInputChange={HandleInputChange}
+              onMenuClick={onMenuClick}
             />
-          </div>
-        </Right>
-      </Container>
-    </motion.div>
+            <div style={{ backgroundColor: "whitesmoke" }}>
+              <h3
+                style={{
+                  color: "#0050B5",
+                  marginLeft: "10px",
+                  paddingTop: "25px",
+                }}
+              >
+                Users
+              </h3>
+              <Dashstats>
+                <Stats>
+                  <StatIcon src="/static/icons/user.PNG" alt="user" />
+                  <StatDesc>users</StatDesc>
+                  <StatNum>{raw.items.all_users}</StatNum>
+                </Stats>
+                <Stats>
+                  <StatIcon
+                    src="/static/icons/user_active.PNG"
+                    alt="active icon"
+                  />
+                  <StatDesc>ACTIVE USERS</StatDesc>
+                  <StatNum>{raw.items.active}</StatNum>
+                </Stats>
+                <Stats>
+                  <StatIcon src="/static/icons/user_loan.PNG" alt="loan icon" />
+                  <StatDesc>USERS WITH LOANS</StatDesc>
+                  <StatNum>{raw.items.loan}</StatNum>
+                </Stats>
+                <Stats>
+                  <StatIcon
+                    src="/static/icons/user_savings.PNG"
+                    alt="savings icon"
+                  />
+                  <StatDesc>USERS WITH SAVINGS</StatDesc>
+                  <StatNum>{raw.items.savings}</StatNum>
+                </Stats>
+              </Dashstats>
+              {error}
+              {modal && Loading()}
+              <Users
+                page={page}
+                PageSize={PageSize}
+                totalCount={raw.items.all_users}
+                onFilter={onFilter}
+                filterClick={filterClick}
+                onReset={onReset}
+                prevPage={prevPage}
+                nextPage={nextPage}
+                handleChange={handleChange}
+                updateStatus={updateStatus}
+              />
+            </div>
+          </Right>
+        </Container>
+      </motion.div>
+    </UserContext.Provider>
   );
 };
 

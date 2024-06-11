@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState, useContext } from "react";
 import { Table } from "reactstrap";
 import { MoreVertOutlined, FilterListOutlined } from "@material-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,8 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { StatusUpdate } from "./utility/AdminAction";
 import axios from "axios";
-import { mergeFields } from "./utility/AdminAction";
+// import { mergeFields } from "./utility/AdminAction";
+import { UserContext } from "./ContextManager";
 
 const Users = (props) => {
   const PageSize = props.PageSize;
@@ -16,67 +17,83 @@ const Users = (props) => {
   const [submenu, setSubmenu] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [inputs, setInputs] = useState({});
-  const [result, setResult] = useState(props.currentData);
+  //   const [filtered_result, setResult] = useState( {  items: {
+  //     users_paginated: [],
+  //     all_users: 0,
+  //     active: 0,
+  //     loan: 0,
+  //     savings: 0,
+  //   },
+  // });
   const [filtered, setFiltered] = useState(0);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setResult(props.currentData);
-  }, [props.currentData]);
+  const result = useContext(UserContext);
+  // if (clicked && filtered) {
+  //   result = filtered_result.items;
+  // }
 
-  useEffect(() => {
-    if (clicked && filtered) {
-      const profileKeys = ["userName", "status", "email", "phoneNumber"];
-      const organizationKeys = ["orgName"];
-      const profile = mergeFields(inputs, profileKeys);
-      const organization = mergeFields(inputs, organizationKeys);
+  // useEffect(() => {
+  //   setResult(props.currentData);
+  // }, [props.currentData]);
 
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Accept: "application/json",
-        },
-      };
-      axios
-        .get(
-          `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter?page=${props.page}`,
-          {
-            params: {
-              profile: JSON.stringify({ profile }),
-              organization: JSON.stringify({ organization }),
-            },
-          },
-          config
-        )
-        .then((response) => {
-          setResult(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  }, [filtered, inputs, clicked, props.page]);
+  // useEffect(() => {
+  //   if (clicked && filtered) {
+  //     const profileKeys = ["userName", "status", "email", "phoneNumber"];
+  //     const organizationKeys = ["orgName"];
+  //     const profile = mergeFields(inputs, profileKeys);
+  //     const organization = mergeFields(inputs, organizationKeys);
+
+  //     const config = {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //         Accept: "application/json",
+  //       },
+  //     };
+  //     axios
+  //       .get(
+  //         `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter?page=${props.page}`,
+  //         {
+  //           params: {
+  //             profile: JSON.stringify({ profile }),
+  //             organization: JSON.stringify({ organization }),
+  //           },
+  //         },
+  //         config
+  //       )
+  //       .then((response) => {
+  //         setResult(response.data);
+  //       })
+  //       .catch((error) => {
+  //         console.error(error);
+  //       });
+  //   }
+  // }, [filtered, inputs, clicked, props.page]);
 
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setInputs((values) => ({ ...values, [name]: value }));
+    props.handleChange((values) => ({ ...values, [name]: value }));
   };
 
   const onFilter = () => {
     setFiltered(filtered + 1);
+    props.onFilter(filtered + 1);
   };
 
   const onReset = () => {
     setInputs({});
     setFiltered(0);
-    setResult(props.currentData);
+    props.onReset();
   };
 
   const filterClick = (event) => {
     setPosition({ top: event.pageY + 20, left: event.pageX - 30 });
     setClicked(!clicked);
+    props.filterClick();
+
     if (clicked) {
       onReset();
     }
@@ -156,7 +173,7 @@ const Users = (props) => {
         </thead>
 
         <tbody>
-          {result.map((user, index) => {
+          {result.users_paginated.map((user, index) => {
             return (
               <tr
                 key={index}
@@ -232,7 +249,7 @@ const Users = (props) => {
           <ArrowForwardIosIcon />
         </PageButton>
         <div>
-          {props.page} of {Math.ceil(props.totalCount / PageSize)}...
+          {props.page} of {Math.ceil(result.all_users / PageSize)}...
         </div>
       </Paginate>
     </div>
