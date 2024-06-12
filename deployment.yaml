@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boom-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: boom-app
+  template:
+    metadata:
+      labels:
+        app: boom-app
+    spec:
+      containers:
+      - name: "lendsqr${TAG}"
+        image: ${LENDSQR_IMAGE}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_LENDSQR_API_URL
+          value: "http://boom-app-backend-service:8000"
+        - name: REACT_APP_MEDIA_URL
+          value: ${REACT_APP_MEDIA_URL}
+      - name: "lendsqr_backend${TAG}"
+        image: ${LENDSQR_BACKEND_IMAGE}
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_USER
+          value: ${DB_USER}
+        - name: PASSWORD
+          value: ${PASSWORD}
+        - name: CLUSTERNAME
+          value: ${CLUSTERNAME}
+      imagePullSecrets:
+      - name: ghcr-secret

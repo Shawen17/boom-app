@@ -22,9 +22,6 @@ pipeline {
         REACT_APP_LENDSQR_API_URL=credentials('REACT_APP_LENDSQR_API_URL')
         REACT_APP_MEDIA_URL=credentials('REACT_APP_MEDIA_URL')
         AWS_REGION = "eu-north-1"
-        ECS_CLUSTER = "boom-cluster"
-        ECS_TASK_DEFINITION_FAMILY = "boom-task"
-        
     }
 
     stages {
@@ -124,129 +121,95 @@ pipeline {
                 }
             }
         }
-        // stage('Register/Update ECS Task Definition') {
-        //     steps {
-        //         script {
-        //             def taskDefinitionTemplate = readFile 'ecs-task-definition-template.json'
-        //             def jsonSlurper = new JsonSlurper()
-        //             def taskDefinitionJson = jsonSlurper.parseText(taskDefinitionTemplate)
-
-        //             taskDefinitionJson.containerDefinitions[0].image = LendsqrBackendImage
-        //             taskDefinitionJson.containerDefinitions[1].image = LendsqrImage
-
-        //             // Update environment variables
-        //             taskDefinitionJson.containerDefinitions[0].environment.find { it.name == 'DB_USER' }.value = "${DB_USER}"
-        //             taskDefinitionJson.containerDefinitions[0].environment.find { it.name == 'PASSWORD' }.value = "${PASSWORD}"
-        //             taskDefinitionJson.containerDefinitions[0].environment.find { it.name == 'CLUSTERNAME' }.value = "${CLUSTERNAME}"
-        //             taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_LENDSQR_API_URL' }.value = "${REACT_APP_LENDSQR_API_URL}"
-        //             taskDefinitionJson.containerDefinitions[1].environment.find { it.name == 'REACT_APP_MEDIA_URL' }.value = "${REACT_APP_MEDIA_URL}"
-
-        //             def updatedTaskDefinition = JsonOutput.toJson(taskDefinitionJson)
-        //             String prettyJson = StringEscapeUtils.unescapeJavaScript(JsonOutput.prettyPrint(updatedTaskDefinition))
-        //             echo prettyJson
-        //             File newFile = new File("ecs-task-definition.json")
-        //             newFile.write(prettyJson)
-        //             // writeFile file: 'ecs-task-definition.json', text: updatedTaskDefinition
-
-        //             withCredentials([
-        //                 string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
-        //                 string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
-        //             ]) {
-        //                  bat '''
-        //                 set AWS_ACCESS_KEY_ID=%AWS_ACCESS_KEY_ID%
-        //                 set AWS_SECRET_ACCESS_KEY=%AWS_SECRET_ACCESS_KEY%
-        //                 aws ecs register-task-definition ^
-        //                     --family %ECS_TASK_DEFINITION_FAMILY% ^
-        //                     --cli-input-json file://ecs-task-definition.json ^
-        //                     --region %AWS_REGION%
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('Deploy to ECS') {
-        //     steps {
-        //         script {
-        //             withCredentials([
-        //                 string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
-        //                 string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
-        //             ]) {
-
-        //                 bat '''
-        //                     for /f "tokens=*" %%i in ('aws ecs describe-task-definition --task-definition %ECS_TASK_DEFINITION_FAMILY% --query "taskDefinition.taskDefinitionArn" --output text') do set TASK_DEFINITION_ARN=%%i
-        //                 '''
-
-        //                 bat '''
-                        
-        //                 aws ecs update-service ^
-        //                     --cluster ${ECS_CLUSTER} ^
-        //                     --service-name boom-service ^
-        //                     --task-definition %ECS_TASK_DEFINITION_FAMILY% ^
-        //                     --launch-type FARGATE ^
-        //                     --desired-count 1 ^
-        //                     --force-new-deployment ^
-        //                     --region %AWS_REGION%
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
-        
-        stage('Check and Stop Containers') {
-            steps {
-                bat '''
-                    powershell -Command "docker container ls -q | ForEach-Object { docker stop $_ }"
-                '''
-            }
-        }
-        stage('Remove All Containers') {
-            steps {
-                bat '''
-                    powershell -Command "docker rm $(docker ps -q -a) -f"
-                '''
-            }
-        }
-        stage('Remove All Images') {
-            steps {
-                bat '''
-                    powershell -Command " docker image rm -f $(docker image ls -q)"
-                '''
-            }
-        }
-        
-        stage('Run Containers') {
+        stage('Deploy Images to EKS Cluster'){
             environment{
                 LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
                 LENDSQR_IMAGE = "${LendsqrImage}"
                 TAG = "${env.BUILD_ID}"
             }
-            steps {
-                
+            steps{
                 script {
                     withEnv([
                         "DB_USER=${DB_USER}",
                         "PASSWORD=${PASSWORD}",
                         "CLUSTERNAME=${CLUSTERNAME}",
-                        "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
                         "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
                         "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
                         "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
                         "TAG=${TAG}"
                     ]) {
-                        bat '''
+                         bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
-                        docker compose -f docker-compose.run.yml up -d
+                        
+                         # Apply the service if it doesn't already exist
+                        kubectl get service my-service || kubectl apply -f service.yaml
+
+                        # Apply the deployment to update the images
+                        kubectl apply -f deployment.yaml
+                        
                         '''
-                    }
-                }
+                     }
+
             }
         }
+        }
+        
+        // stage('Check and Stop Containers') {
+        //     steps {
+        //         bat '''
+        //             powershell -Command "docker container ls -q | ForEach-Object { docker stop $_ }"
+        //         '''
+        //     }
+        // }
+        // stage('Remove All Containers') {
+        //     steps {
+        //         bat '''
+        //             powershell -Command "docker rm $(docker ps -q -a) -f"
+        //         '''
+        //     }
+        // }
+        // stage('Remove All Images') {
+        //     steps {
+        //         bat '''
+        //             powershell -Command " docker image rm -f $(docker image ls -q)"
+        //         '''
+        //     }
+        // }
+        
+        // stage('Run Containers') {
+            // environment{
+            //     LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
+            //     LENDSQR_IMAGE = "${LendsqrImage}"
+            //     TAG = "${env.BUILD_ID}"
+            // }
+        //     steps {
+                
+                // script {
+                //     withEnv([
+                //         "DB_USER=${DB_USER}",
+                //         "PASSWORD=${PASSWORD}",
+                //         "CLUSTERNAME=${CLUSTERNAME}",
+                //         "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
+                //         "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
+                //         "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+                //         "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
+                //         "TAG=${TAG}"
+                //     ]) {
+                //         bat '''
+                //         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
+                //         docker compose -f docker-compose.run.yml up -d
+                //         '''
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     post {
         cleanup {
             script {
                 // Clean up the workspace
+                bat 'echo kubectl get services'
                 deleteDir()
             }
         }
