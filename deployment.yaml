@@ -13,15 +13,6 @@ spec:
         app: boom-app
     spec:
       containers:
-      - name: lendsqr-frontend
-        image: ${LENDSQR_IMAGE}
-        ports:
-        - containerPort: 3000
-        env:
-        - name: REACT_APP_LENDSQR_API_URL
-          value: "http://boom-app-backend-service:8000"
-        - name: REACT_APP_MEDIA_URL
-          value: ${REACT_APP_MEDIA_URL}
       - name: lendsqr-backend
         image: ${LENDSQR_BACKEND_IMAGE}
         ports:
@@ -33,5 +24,14 @@ spec:
           value: ${PASSWORD}
         - name: CLUSTERNAME
           value: ${CLUSTERNAME}
+      - name: lendsqr-frontend
+        image: ${LENDSQR_IMAGE}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_LENDSQR_API_URL
+          value: "http://boom-app-backend-service:8000"
+        - name: REACT_APP_MEDIA_URL
+          value: ${REACT_APP_MEDIA_URL}
       imagePullSecrets:
       - name: ghcr-secret
