@@ -141,10 +141,10 @@ pipeline {
                          bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         
-                         # Apply the service if it doesn't already exist
+                        //  Apply the service if it doesn't already exist
                         kubectl get service my-service || kubectl apply -f service.yaml
 
-                        # Apply the deployment to update the images
+                        // Apply the deployment to update the images
                         kubectl apply -f deployment.yaml
                         
                         '''
