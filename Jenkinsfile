@@ -210,7 +210,7 @@ pipeline {
             script {
                 // Get the EXTERNAL-IP of the service and print it
                 def externalIp = bat (
-                    script: 'kubectl get service my-service -o jsonpath="{.status.loadBalancer.ingress[0].ip}"',
+                    script: 'kubectl get service boom-app-frontend-service -o jsonpath="{.status.loadBalancer.ingress[0].ip}"',
                     returnStdout: true
                 ).trim()
                 echo "External IP: ${externalIp}"
