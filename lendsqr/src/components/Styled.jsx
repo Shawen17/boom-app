@@ -38,7 +38,7 @@ export const SignupContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: centre;
-  color: white;
+  color: black;
   background-image: url("/static/icons/signup.jpg");
   background-size: cover;
   height: 100vh;
@@ -171,7 +171,7 @@ export const Box = styled.div`
 `;
 
 export const Select = styled.select`
-  width: 100%;
+  width: 150px;
   border: none;
   font-size: 14px;
   background-color: transparent;
@@ -226,4 +226,38 @@ export const Right = styled.div`
   flex: 70%;
   align-items: flex-start;
   justify-content: flex-start;
+`;
+
+export const PasswordWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+  margin-bottom: 5px;
+  border: 2px solid #18a558;
+  border-radius: 6px;
+  height: 30px;
+  width: 100%;
+`;
+
+export const Password = styled.input`
+  width: 100%;
+  color: black;
+  border: none;
+  background-color: transparent;
+  border-style: none;
+  font-size: 14px;
+  font-family: "Urbanist", sans-serif;
+  font-weight: bold;
+
+  ::placeholder {
+    font-size: 10px;
+    font-style: italic;
+    font-weight: bold;
+  }
+
+  &:focus {
+    outline: none;
+    border: 3px solid #00b894;
+    border-right: none;
+    box-shadow: 0 0 10px #00b894;
+  }
 `;

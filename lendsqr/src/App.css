@@ -51,6 +51,14 @@
   background-color: rgba(0,0,0,0.5); /* Black with transparency */
 }
 
+.checkmark {
+  position: absolute;
+  right: 5px;
+  top: 30%;
+  transform: translateY(-50%);
+  color: green;
+  font-size: 1.5em;
+}
 
 
 

@@ -13,7 +13,7 @@ spec:
         app: boom-app
     spec:
       containers:
-      - name: "lendsqr${TAG}"
+      - name: lendsqr-frontend
         image: ${LENDSQR_IMAGE}
         ports:
         - containerPort: 3000
@@ -22,7 +22,7 @@ spec:
           value: "http://boom-app-backend-service:8000"
         - name: REACT_APP_MEDIA_URL
           value: ${REACT_APP_MEDIA_URL}
-      - name: "lendsqr_backend${TAG}"
+      - name: lendsqr-backend
         image: ${LENDSQR_BACKEND_IMAGE}
         ports:
         - containerPort: 8000

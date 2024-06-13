@@ -171,7 +171,9 @@ const ProfileForm = ({ signup, isAuthenticated, add_portfolio }) => {
                 <Label htmlFor="phoneNumber">Phone Number</Label>
                 <SearchContainer>
                   <Input
-                    placeholder="e.g +1 389 109 1987"
+                    placeholder="389-109-0020"
+                    pattern="\d{3}-d{3}-d{4}"
+                    title="Format: 123-456-7890"
                     type="text"
                     name="phoneNumber"
                     value={inputs.phoneNumber || ""}

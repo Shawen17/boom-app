@@ -10,18 +10,23 @@ import {
   SearchContainer,
   Input,
   SignupDisplay,
+  PasswordWrapper,
+  Password,
 } from "../components/Styled";
 import { useState, useEffect } from "react";
 import { provinces } from "../components/utility/AdminAction";
 import { Link, useNavigate } from "react-router-dom";
 import { Form } from "reactstrap";
 import { motion } from "framer-motion";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 const Signup = () => {
   document.title = "Signup";
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({});
   const [error, setError] = useState("");
+  const [isValid, setIsValid] = useState(false);
+  const [isMatch, setIsMatch] = useState(false);
 
   const handleChange = (event) => {
     setError("");
@@ -52,15 +57,22 @@ const Signup = () => {
       setError("password does not match");
     }
   };
+
   useEffect(() => {
-    if (inputs.password) {
-      if (
-        inputs.re_password &&
-        inputs.password.length === inputs.re_password.length &&
-        inputs.password !== inputs.re_password
-      ) {
-        setError("password does not match");
+    const validatePassword = (pwd) => {
+      const pattern =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,30}$/;
+
+      if (inputs.re_password) {
+        return pwd === inputs.password;
+      } else {
+        return pattern.test(pwd);
       }
+    };
+    if (inputs.re_password) {
+      setIsMatch(validatePassword(inputs.re_password));
+    } else {
+      setIsValid(validatePassword(inputs.password));
     }
   }, [inputs]);
 
@@ -108,7 +120,7 @@ const Signup = () => {
               </Box>
             </MiniContainer>
             <MiniContainer>
-              <Box style={{ marginRight: 0, marginLeft: 15 }}>
+              <Box>
                 <Label>Email</Label>
                 <SearchContainer>
                   <Input
@@ -121,9 +133,9 @@ const Signup = () => {
                   />
                 </SearchContainer>
               </Box>
-              <Box style={{ marginRight: 0, marginLeft: 10 }}>
+              <Box>
                 <Label htmlFor="state">Province</Label>
-                <SearchContainer style={{ width: "85%" }}>
+                <SearchContainer>
                   <Select
                     required
                     name="state"
@@ -143,23 +155,31 @@ const Signup = () => {
             <MiniContainer>
               <Box>
                 <Label>Password</Label>
-                <SearchContainer>
-                  <Input
-                    placeholder="Password"
+                <PasswordWrapper>
+                  <Password
+                    pattern="/^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[!@#$%^&*])[A-Za-zd!@#$%^&*]{8,30}$/"
                     type="password"
+                    title="lower,upper,number, special character"
+                    onChange={handleChange}
+                    placeholder="Password"
                     name="password"
                     value={inputs.password || ""}
                     required
-                    minLength={8}
-                    onChange={handleChange}
                   />
-                </SearchContainer>
+                  {isValid && (
+                    <span className="checkmark">
+                      <CheckCircleOutlineIcon style={{ fontSize: 15 }} />
+                    </span>
+                  )}
+                </PasswordWrapper>
               </Box>
 
               <Box>
                 <Label>Confirm Password</Label>
-                <SearchContainer>
-                  <Input
+                <PasswordWrapper>
+                  <Password
+                    title="same with password"
+                    pattern="/^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[!@#$%^&*])[A-Za-zd!@#$%^&*]{8,30}$/"
                     required
                     placeholder="Confirm Password"
                     type="password"
@@ -167,16 +187,19 @@ const Signup = () => {
                     value={inputs.re_password || ""}
                     onChange={handleChange}
                   />
-                </SearchContainer>
+                  {isMatch && (
+                    <span className="checkmark">
+                      <CheckCircleOutlineIcon style={{ fontSize: 15 }} />
+                    </span>
+                  )}
+                </PasswordWrapper>
               </Box>
             </MiniContainer>
             <Button type="submit">Submit</Button>
           </Form>
 
           <Outline>
-            <div style={{ marginRight: 4, color: "white" }}>
-              Already have an account?
-            </div>
+            <div style={{ marginRight: 4 }}>Already have an account?</div>
             <Link
               style={{ color: "#18a558" }}
               className="nav-link sidebar-link"
