@@ -206,11 +206,19 @@ pipeline {
     }
 
     post {
+        always {
+            script {
+                // Get the EXTERNAL-IP of the service and print it
+                def externalIp = bat (
+                    script: 'kubectl get service my-service -o jsonpath="{.status.loadBalancer.ingress[0].ip}"',
+                    returnStdout: true
+                ).trim()
+                echo "External IP: ${externalIp}"
+            }
+        }
         cleanup {
             script {
-                // Clean up the workspace
-                bat 'echo kubectl get services'
-                deleteDir()
+              deleteDir()
             }
         }
     }
