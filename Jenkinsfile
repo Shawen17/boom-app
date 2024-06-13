@@ -125,7 +125,7 @@ pipeline {
             environment{
                 LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
                 LENDSQR_IMAGE = "${LendsqrImage}"
-                TAG = "${env.BUILD_ID}"
+                
             }
             steps{
                 script {
@@ -136,7 +136,7 @@ pipeline {
                         "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
                         "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
                         "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
-                        "TAG=${TAG}"
+                        
                     ]) {
                          bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
@@ -144,10 +144,9 @@ pipeline {
                         
                         kubectl get service boom-app-frontend-service || kubectl apply -f service.yaml
 
-                        
-                        kubectl apply -f deployment.yaml
-                        
                         '''
+                        writeFile file: 'deployment.yaml', text: libraryResource('deployment.yaml')
+                        sh 'envsubst < deployment.yaml | kubectl apply -f -'
                      }
 
             }
