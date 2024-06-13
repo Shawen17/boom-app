@@ -117,3 +117,6 @@ export const provinces = [
   { id: 12, name: "Yukon" },
   { id: 13, name: "Northwest Territories" },
 ];
+
+export const API_URL =
+  process.env.REACT_APP_LENDSQR_API_URL || "http://my-app-backend-service:8000";
