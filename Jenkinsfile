@@ -141,12 +141,19 @@ pipeline {
                          bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         
-                        
                         kubectl get service boom-app-frontend-service || kubectl apply -f service.yaml
-
                         '''
-                        writeFile file: 'deployment.yaml', text: libraryResource('deployment.yaml')
-                        sh 'envsubst < deployment.yaml | kubectl apply -f -'
+                        def deploymentYaml = readFile('deployment.yaml')
+                        def modifiedYaml = deploymentYaml
+                            .replace('${LENDSQR_IMAGE}', "${LENDSQR_IMAGE}")
+                            .replace('${LENDSQR_BACKEND_IMAGE}', "${LENDSQR_BACKEND_IMAGE}")
+                            .replace('${DB_USER}', "${DB_USER}")
+                            .replace('${PASSWORD}', "${PASSWORD}")
+                            .replace('${CLUSTERNAME}', "${CLUSTERNAME}")
+                            .replace('${REACT_APP_MEDIA_URL}', "${REACT_APP_MEDIA_URL}")
+                            
+                        writeFile file: 'modified-deployment.yaml', text: modifiedYaml
+                        bat 'kubectl apply -f modified-deployment.yaml'
                      }
 
             }
