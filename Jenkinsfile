@@ -78,7 +78,7 @@ pipeline {
             steps {
                 script {
                     
-                    def services = ['lendsqr_backend', 'lendsqr']
+                    def services = ['lendsqr-backend', 'lendsqr']
                     
                     def parallelStages = [:]
 
