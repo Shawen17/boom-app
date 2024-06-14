@@ -20,7 +20,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "lendsqr-backend.vercel.app",
-    "http://aa502a73b7a8f43aebf7cc681fb1b0ef-1194634514.eu-north-1.elb.amazonaws.com",
+    "https://aa502a73b7a8f43aebf7cc681fb1b0ef-1194634514.eu-north-1.elb.amazonaws.com",
 ]
 
 
@@ -214,7 +214,7 @@ CORS_ORIGIN_WHITELIST = [
     "https://oluwaseun-johnson-lendsqr-fe-test.netlify.app",
     "https://lendsqr-backend.vercel.app",
     "http://localhost:3000",
-    "http://aa502a73b7a8f43aebf7cc681fb1b0ef-1194634514.eu-north-1.elb.amazonaws.com",
+    "https://aa502a73b7a8f43aebf7cc681fb1b0ef-1194634514.eu-north-1.elb.amazonaws.com",
     "http://a951e4216cc30426ba1dabd3d58d46e1-1155771194.eu-north-1.elb.amazonaws.com",
 ]
 

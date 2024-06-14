@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: boom-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host:  a58495115351e437285842242dfcee99-1425383892.eu-north-1.elb.amazonaws.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boom-app-frontend-service
+                port:
+                  number: 80
+    - host: a05501d8108c744baa1a3ba46819c0a3-1385673028.eu-north-1.elb.amazonaws.com
+      http:
+        paths:
+          - path: /admin/
+            pathType: Prefix
+            backend:
+              service:
+                name: boom-app-backend-service
+                port:
+                  number: 8000
+  tls:
+    - hosts:
+        - a58495115351e437285842242dfcee99-1425383892.eu-north-1.elb.amazonaws.com
+        - a05501d8108c744baa1a3ba46819c0a3-1385673028.eu-north-1.elb.amazonaws.com
+      secretName: my-tls-secret  # Name of the TLS secret for both frontend and backend

@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: boom-app-frontend-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: boom-app
   ports:
@@ -16,11 +16,10 @@ kind: Service
 metadata:
   name: boom-app-backend-service
 spec:
-  type: LoadBalancer  # Change this to LoadBalancer to expose the backend to the internet
+  type: ClusterIP
   selector:
     app: boom-app
-    tier: backend  # Add tier selector for the backend
   ports:
     - protocol: TCP
-      port: 80  # Expose port 80 to the internet
+      port: 8000
       targetPort: 8000  # Backend container port
