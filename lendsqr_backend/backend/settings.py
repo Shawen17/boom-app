@@ -214,7 +214,7 @@ CORS_ORIGIN_WHITELIST = [
     "https://oluwaseun-johnson-lendsqr-fe-test.netlify.app",
     "https://lendsqr-backend.vercel.app",
     "http://localhost:3000",
-    "a150f97ebbba34795aa15c75de625aff-569107307.eu-north-1.elb.amazonaws.com",
+    "https://a150f97ebbba34795aa15c75de625aff-569107307.eu-north-1.elb.amazonaws.com",
 ]
 
 AUTH_USER_MODEL = "lendsqr.User"
