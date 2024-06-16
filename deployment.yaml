@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: boom-app
+  name: boom-app-backend 
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: boom-app
+      app: boom-app-backend
+      tier: backend
   template:
     metadata:
       labels:
-        app: boom-app
+        app: boom-app-backend
         tier: backend  # Add tier label for the backend
     spec:
       containers:
       - name: lendsqr-backend
-        image: ${LENDSQR_BACKEND_IMAGE}
+        image: ghcr.io/shawen17/boom-app-job-lendsqr_backend:122
         ports:
         - containerPort: 8000
         env:
@@ -25,13 +26,33 @@ spec:
           value: ${PASSWORD}
         - name: CLUSTERNAME
           value: ${CLUSTERNAME}
+      imagePullSecrets:
+      - name: ghcr-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boom-app-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: boom-app-frontend
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: boom-app-frontend
+        tier: frontend  
+    spec:
+      containers:
       - name: lendsqr-frontend
-        image: ${LENDSQR_IMAGE}
+        image: ghcr.io/shawen17/boom-app-job-lendsqr:122
         ports:
         - containerPort: 3000
         env:
         - name: REACT_APP_LENDSQR_API_URL
-          value: "http://boom-app-backend-service:80"  # Change port to 80
+          value: "https://backend.dashme.ng"  
         - name: REACT_APP_MEDIA_URL
           value: ${REACT_APP_MEDIA_URL}
       imagePullSecrets:

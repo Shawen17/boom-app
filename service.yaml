@@ -3,9 +3,10 @@ kind: Service
 metadata:
   name: boom-app-frontend-service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
-    app: boom-app
+    app: boom-app-frontend
+    tier: frontend
   ports:
     - protocol: TCP
       port: 80
@@ -16,10 +17,11 @@ kind: Service
 metadata:
   name: boom-app-backend-service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
-    app: boom-app
+    app: boom-app-backend
+    tier: backend
   ports:
     - protocol: TCP
-      port: 8000
+      port: 80
       targetPort: 8000  # Backend container port
