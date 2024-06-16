@@ -141,7 +141,7 @@ pipeline {
                          bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         
-                        kubectl get service || kubectl apply -f service.yaml
+                        kubectl apply -f service.yaml
                         '''
                         def deploymentYaml = readFile('deployment.yaml')
                         def modifiedYaml = deploymentYaml
