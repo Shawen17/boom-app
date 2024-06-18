@@ -20,3 +20,14 @@ services:
       REACT_APP_LENDSQR_API_URL: ${REACT_APP_LENDSQR_API_URL}
       REACT_APP_MEDIA_URL: ${REACT_APP_MEDIA_URL}
 
+  redis-cache:
+    image: redis
+    container_name: redis-container
+    ports:
+      - 6379:6379
+    environment:
+      REDIS: redis-cache
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    

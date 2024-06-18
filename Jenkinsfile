@@ -162,55 +162,55 @@ pipeline {
             }
         }
         
-        // stage('Check and Stop Containers') {
-        //     steps {
-        //         bat '''
-        //             powershell -Command "docker container ls -q | ForEach-Object { docker stop $_ }"
-        //         '''
-        //     }
-        // }
-        // stage('Remove All Containers') {
-        //     steps {
-        //         bat '''
-        //             powershell -Command "docker rm $(docker ps -q -a) -f"
-        //         '''
-        //     }
-        // }
-        // stage('Remove All Images') {
-        //     steps {
-        //         bat '''
-        //             powershell -Command " docker image rm -f $(docker image ls -q)"
-        //         '''
-        //     }
-        // }
+        stage('Check and Stop Containers') {
+            steps {
+                bat '''
+                    powershell -Command "docker container ls -q | ForEach-Object { docker stop $_ }"
+                '''
+            }
+        }
+        stage('Remove All Containers') {
+            steps {
+                bat '''
+                    powershell -Command "docker rm $(docker ps -q -a) -f"
+                '''
+            }
+        }
+        stage('Remove All Images') {
+            steps {
+                bat '''
+                    powershell -Command " docker image rm -f $(docker image ls -q)"
+                '''
+            }
+        }
         
-        // stage('Run Containers') {
-        //     environment{
-        //         LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
-        //         LENDSQR_IMAGE = "${LendsqrImage}"
-        //         TAG = "${env.BUILD_ID}"
-        //     }
-        //     steps {
+        stage('Run Containers') {
+            environment{
+                LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
+                LENDSQR_IMAGE = "${LendsqrImage}"
+                TAG = "${env.BUILD_ID}"
+            }
+            steps {
                 
-        //         script {
-        //             withEnv([
-        //                 "DB_USER=${DB_USER}",
-        //                 "PASSWORD=${PASSWORD}",
-        //                 "CLUSTERNAME=${CLUSTERNAME}",
-        //                 "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
-        //                 "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
-        //                 "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
-        //                 "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
-        //                 "TAG=${TAG}"
-        //             ]) {
-        //                 bat '''
-        //                 echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
-        //                 docker compose -f docker-compose.run.yml up -d
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
+                script {
+                    withEnv([
+                        "DB_USER=${DB_USER}",
+                        "PASSWORD=${PASSWORD}",
+                        "CLUSTERNAME=${CLUSTERNAME}",
+                        "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
+                        "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
+                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+                        "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
+                        "TAG=${TAG}"
+                    ]) {
+                        bat '''
+                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
+                        docker compose -f docker-compose.run.yml up -d
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {

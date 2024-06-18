@@ -11,9 +11,15 @@ from rest_framework.permissions import IsAuthenticated
 import boto3
 from dotenv import load_dotenv
 from typing import Any
+from .utility import generate_cache_key, users_portfolio
+import redis
 
 
 load_dotenv()
+
+r = redis.Redis(host=os.getenv("REDIS"), port=6379, db=0)
+
+
 db = settings.MONGO_DB
 
 
@@ -91,122 +97,7 @@ def get_staff_status(request: dict[str, Any]) -> dict[str, str]:
 def users(request: dict[str, Any]) -> dict[str, Any]:
     try:
         if request.method == "GET":
-            page = int(request.GET.get("page", 1))
-            search = request.GET.get("search", "")
-
-            if search:
-                regex_pattern = f".*{search}.*"
-                query = {
-                    "$and": [
-                        {"guarantor": {"$exists": True}},
-                        {
-                            "$or": [
-                                {
-                                    "profile.email": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "profile.userName": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "profile.firstName": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "profile.lastName": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "profile.status": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "profile.address": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "organization.orgName": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "organization.employmentStatus": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "organization.sector": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                                {
-                                    "organization.officeEmail": {
-                                        "$regex": regex_pattern,
-                                        "$options": "i",
-                                    }
-                                },
-                            ]
-                        },
-                    ]
-                }
-                users = db["users"].find(query)
-
-            else:
-                users = db["users"].find({"guarantor": {"$exists": True}})
-            per_page = 20
-            start_index = (page - 1) * per_page
-            end_index = page * per_page
-            all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users]
-
-            users_paginated = all_documents[start_index:end_index]
-            all_users = len(all_documents)
-            active = len(
-                [
-                    item
-                    for item in all_documents
-                    if item["profile"]["status"] == "Active"
-                ]
-            )
-            loan = len(
-                [
-                    item
-                    for item in all_documents
-                    if "account" in item and int(item["account"]["loanRepayment"]) > 0
-                ]
-            )
-            savings = len(
-                [
-                    item
-                    for item in all_documents
-                    if "account" in item and int(item["account"]["accountBalance"]) > 0
-                ]
-            )
-            return Response(
-                {
-                    "users_paginated": users_paginated,
-                    "all_users": all_users,
-                    "active": active,
-                    "loan": loan,
-                    "savings": savings,
-                },
-                status=status.HTTP_200_OK,
-            )
+            return users_portfolio(request, db)
         if request.method == "POST":
             avatar = request.FILES.get("avatar") if "avatar" in request.FILES else None
             account = (
@@ -348,6 +239,12 @@ def update_status(request: dict[str, Any], id: str, action: str) -> dict[str, st
 @api_view(["GET"])
 def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
     try:
+        cache_key = generate_cache_key(request)
+        cached_result = r.get(cache_key)
+
+        if cached_result:
+            return Response(json.loads(cached_result), status=status.HTTP_200_OK)
+
         page = int(request.GET.get("page", 1))
         organization = (
             json.loads(request.GET.get("organization"))
@@ -357,11 +254,13 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
         profile = (
             json.loads(request.GET.get("profile")) if "profile" in request.GET else None
         )
+
         combined = {}
         if profile:
             combined = {**profile}
         if organization:
             combined = {**combined, **organization}
+
         query = {"guarantor": {"$exists": True}}
         for key, value in combined.items():
             if key == "profile" and len(value) > 0:
@@ -374,6 +273,7 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
                     if j != "":
                         query_key = f"organization.{i}"
                         query[query_key] = j
+
         users = db["users"].find({"$and": [query]})
         per_page = 20
         start_index = (page - 1) * per_page
@@ -398,16 +298,17 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
                 if int(item["account"]["accountBalance"]) > 0
             ]
         )
-        return Response(
-            {
-                "users_paginated": users_paginated,
-                "all_users": all_users,
-                "active": active,
-                "loan": loan,
-                "savings": savings,
-            },
-            status=status.HTTP_200_OK,
-        )
+
+        result = {
+            "users_paginated": users_paginated,
+            "all_users": all_users,
+            "active": active,
+            "loan": loan,
+            "savings": savings,
+        }
+
+        r.set(cache_key, json.dumps(result), ex=1800)  # Cache the result for 30 minutes
+        return Response(result, status=status.HTTP_200_OK)
     except Exception as e:
         return Response(
             {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR

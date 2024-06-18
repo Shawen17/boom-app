@@ -44,3 +44,4 @@ python-dotenv
 pytest
 pytest-django
 pydantic
+django-redis

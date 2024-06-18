@@ -119,6 +119,17 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{os.getenv("REDIS")}:6379/1",
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        "KEY_PREFIX": "example",
+    }
+}
+
+CACHE_TTL = 60 * 30
+
 GRIDFS_STORAGE_DB = "user_details"
 GRIDFS_STORAGE_COLLECTION = "images"
 
