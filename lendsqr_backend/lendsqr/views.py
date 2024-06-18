@@ -241,10 +241,6 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
     try:
         cache_key = generate_cache_key(request)
         cached_result = r.get(cache_key)
-
-        if cached_result:
-            return Response(json.loads(cached_result), status=status.HTTP_200_OK)
-
         page = int(request.GET.get("page", 1))
         organization = (
             json.loads(request.GET.get("organization"))
@@ -278,7 +274,11 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
         per_page = 20
         start_index = (page - 1) * per_page
         end_index = page * per_page
-        all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users if users]
+        if cached_result:
+            all_documents = json.loads(cached_result)
+        else:
+            all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users if users]
+        # print(all_documents)
         users_paginated = all_documents[start_index:end_index]
         all_users = len(all_documents)
         active = len(

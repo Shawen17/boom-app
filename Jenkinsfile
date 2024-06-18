@@ -121,46 +121,46 @@ pipeline {
                 }
             }
         }
-        stage('Deploy Images to EKS Cluster'){
-            environment{
-                LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
-                LENDSQR_IMAGE = "${LendsqrImage}"
+        // stage('Deploy Images to EKS Cluster'){
+        //     environment{
+        //         LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
+        //         LENDSQR_IMAGE = "${LendsqrImage}"
                 
-            }
-            steps{
-                script {
-                    withEnv([
-                        "DB_USER=${DB_USER}",
-                        "PASSWORD=${PASSWORD}",
-                        "CLUSTERNAME=${CLUSTERNAME}",
-                        "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
-                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
-                        "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
+        //     }
+        //     steps{
+        //         script {
+        //             withEnv([
+        //                 "DB_USER=${DB_USER}",
+        //                 "PASSWORD=${PASSWORD}",
+        //                 "CLUSTERNAME=${CLUSTERNAME}",
+        //                 "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
+        //                 "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+        //                 "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
                         
-                    ]) {
-                         bat '''
-                        echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
+        //             ]) {
+        //                  bat '''
+        //                 echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
                         
-                        kubectl apply -f service.yaml
-                        '''
-                        def deploymentYaml = readFile('deployment.yaml')
-                        def modifiedYaml = deploymentYaml
-                            .replace('${LENDSQR_IMAGE}', "${LENDSQR_IMAGE}")
-                            .replace('${LENDSQR_BACKEND_IMAGE}', "${LENDSQR_BACKEND_IMAGE}")
-                            .replace('${DB_USER}', "${DB_USER}")
-                            .replace('${PASSWORD}', "${PASSWORD}")
-                            .replace('${CLUSTERNAME}', "${CLUSTERNAME}")
-                            .replace('${REACT_APP_MEDIA_URL}', "${REACT_APP_MEDIA_URL}")
+        //                 kubectl apply -f service.yaml
+        //                 '''
+        //                 def deploymentYaml = readFile('deployment.yaml')
+        //                 def modifiedYaml = deploymentYaml
+        //                     .replace('${LENDSQR_IMAGE}', "${LENDSQR_IMAGE}")
+        //                     .replace('${LENDSQR_BACKEND_IMAGE}', "${LENDSQR_BACKEND_IMAGE}")
+        //                     .replace('${DB_USER}', "${DB_USER}")
+        //                     .replace('${PASSWORD}', "${PASSWORD}")
+        //                     .replace('${CLUSTERNAME}', "${CLUSTERNAME}")
+        //                     .replace('${REACT_APP_MEDIA_URL}', "${REACT_APP_MEDIA_URL}")
                             
-                        writeFile file: 'modified-deployment.yaml', text: modifiedYaml
-                        bat '''
-                        kubectl apply -f modified-deployment.yaml
-                        kubectl get ingress || kubectl apply -f ingress.yaml
-                        '''
-                     }
-                }
-            }
-        }
+        //                 writeFile file: 'modified-deployment.yaml', text: modifiedYaml
+        //                 bat '''
+        //                 kubectl apply -f modified-deployment.yaml
+        //                 kubectl get ingress || kubectl apply -f ingress.yaml
+        //                 '''
+        //              }
+        //         }
+        //     }
+        // }
         
         stage('Check and Stop Containers') {
             steps {
