@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "djoser",
     "corsheaders",
     "whitenoise.runserver_nostatic",
+    "ratelimit",
 ]
 
 MIDDLEWARE = [
