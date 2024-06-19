@@ -13,7 +13,7 @@ User = get_user_model()
 )
 @pytest.mark.fast
 @pytest.mark.django_db
-def test_advanced_filter(client, page, search, validity):
+def test_load_user(client, page, search, validity):
     email = "shawn@gmail.com"
     password = "admin"
 
@@ -36,6 +36,5 @@ def test_advanced_filter(client, page, search, validity):
     headers = {"content_type": "application/json", "Authorization": token}
     print("========fetching users===========")
     response = client.get(url, headers=headers)
-
     assert len(response.data["users_paginated"]) >= validity
     print("========users loaded successfully===========")
