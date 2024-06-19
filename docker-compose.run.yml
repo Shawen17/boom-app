@@ -9,6 +9,7 @@ services:
       DB_USER: ${DB_USER}
       PASSWORD: ${PASSWORD}
       CLUSTERNAME: ${CLUSTERNAME}
+      REDIS: redis-cache
       
 
   lendsqr:
@@ -25,8 +26,6 @@ services:
     container_name: redis-container
     ports:
       - 6379:6379
-    environment:
-      REDIS: redis-cache
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
