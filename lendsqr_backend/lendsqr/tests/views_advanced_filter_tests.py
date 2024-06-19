@@ -8,21 +8,21 @@ User = get_user_model()
 @pytest.mark.parametrize(
     "profile, organization,password, query, validity,page",
     [
-        # (
-        #     {
-        #         "email": "test@gmail.com",
-        #         "bvn": 12345666,
-        #         "firstName": "shawn",
-        #         "lastName": "shawn",
-        #         "phoneNumber": "78390100193",
-        #         "status": "Active",
-        #     },
-        #     {},
-        #     "admin",
-        #     {"email": "test@gmail.com", "status": "Active"},
-        #     0,
-        #     1,
-        # ),
+        (
+            {
+                "email": "test@gmail.com",
+                "bvn": 12345666,
+                "firstName": "shawn",
+                "lastName": "shawn",
+                "phoneNumber": "78390100193",
+                "status": "Active",
+            },
+            {},
+            "admin",
+            {"email": "test@gmail.com", "status": "Active"},
+            0,
+            1,
+        ),
         (
             {
                 "email": "test2@gmail.com",
@@ -38,21 +38,21 @@ User = get_user_model()
             1,
             1,
         ),
-        # (
-        #     {
-        #         "email": "test3@gmail.com",
-        #         "bvn": 12345666,
-        #         "firstName": "tammy",
-        #         "lastName": "johnson",
-        #         "phoneNumber": "78390100193",
-        #         "status": "Inactive",
-        #     },
-        #     {"orgName": "knorr"},
-        #     "admin",
-        #     {},
-        #     0,
-        #     1,
-        # ),
+        (
+            {
+                "email": "test3@gmail.com",
+                "bvn": 12345666,
+                "firstName": "tammy",
+                "lastName": "johnson",
+                "phoneNumber": "78390100193",
+                "status": "Inactive",
+            },
+            {"orgName": "knorr"},
+            "admin",
+            {},
+            0,
+            1,
+        ),
         (
             {
                 "email": "test4@gmail.com",
@@ -102,4 +102,5 @@ def test_advanced_filter(
     print("========filter initiated===========")
     response = client.post(url, data=data, headers=headers)
     assert len(response.data) >= validity
+    assert "users_paginated" in response.data
     print("========filter successful===========")

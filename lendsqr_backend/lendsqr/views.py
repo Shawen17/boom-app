@@ -269,14 +269,19 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
                         query_key = f"organization.{i}"
                         query[query_key] = j
 
-        users = db["users"].find({"$and": [query]}, {"updatedAt": 0})
+        users = db["users"].find(
+            {"$and": [query]}, {"updatedAt": 0, "createdAt": 0, "lastActiveDate": 0}
+        )
         per_page = 20
         start_index = (page - 1) * per_page
         end_index = page * per_page
         if cached_result:
             all_documents = json.loads(cached_result)
+            print(all_documents)
+
         else:
             all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users if users]
+            r.set(cache_key, json.dumps(all_documents), ex=1800)
 
         users_paginated = all_documents[start_index:end_index]
         all_users = len(all_documents)
@@ -305,8 +310,6 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
             "loan": loan,
             "savings": savings,
         }
-
-        r.set(cache_key, json.dumps(result), ex=1800)  # Cache the result for 30 minutes
         return Response(result, status=status.HTTP_200_OK)
     except Exception as e:
         return Response(
