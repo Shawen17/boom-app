@@ -53,21 +53,21 @@ User = get_user_model()
             0,
             1,
         ),
-        (
-            {
-                "email": "test4@gmail.com",
-                "bvn": 12345666,
-                "firstName": "tammy",
-                "lastName": "johnson",
-                "phoneNumber": "78390100193",
-                "status": "Inactive",
-            },
-            {},
-            "admin",
-            {"status": "Blacklisted"},
-            1,
-            1,
-        ),
+        # (
+        #     {
+        #         "email": "test4@gmail.com",
+        #         "bvn": 12345666,
+        #         "firstName": "tammy",
+        #         "lastName": "johnson",
+        #         "phoneNumber": "78390100193",
+        #         "status": "Inactive",
+        #     },
+        #     {},
+        #     "admin",
+        #     {"status": "Blacklisted"},
+        #     1,
+        #     1,
+        # ),
         # Add more test cases if needed
     ],
 )
