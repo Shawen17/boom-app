@@ -93,7 +93,7 @@ def test_advanced_filter(
     token = response.data["access"]
 
     print("========login successful===========")
-    url = f"/api/advance-filter?page=${page}"  # Modify the URL according to your API endpoint
+    url = f"/api/advance-filter?page={page}"  # Modify the URL according to your API endpoint
     data = {
         "profile": json.dumps(query),
         "organization": json.dumps(organization),
@@ -101,6 +101,5 @@ def test_advanced_filter(
     headers = {"content_type": "multipart/form-data", "Authorization": token}
     print("========filter initiated===========")
     response = client.post(url, data=data, headers=headers)
-
     assert len(response.data) >= validity
     print("========filter successful===========")

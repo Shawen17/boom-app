@@ -236,7 +236,7 @@ def update_status(request: dict[str, Any], id: str, action: str) -> dict[str, st
 
 
 @permission_classes([IsAuthenticated])
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
     try:
         cache_key = generate_cache_key(request)
@@ -250,7 +250,6 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
         profile = (
             json.loads(request.GET.get("profile")) if "profile" in request.GET else None
         )
-
         combined = {}
         if profile:
             combined = {**profile}
@@ -270,7 +269,7 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
                         query_key = f"organization.{i}"
                         query[query_key] = j
 
-        users = db["users"].find({"$and": [query]})
+        users = db["users"].find({"$and": [query]}, {"updatedAt": 0})
         per_page = 20
         start_index = (page - 1) * per_page
         end_index = page * per_page
@@ -278,7 +277,7 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
             all_documents = json.loads(cached_result)
         else:
             all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users if users]
-        # print(all_documents)
+
         users_paginated = all_documents[start_index:end_index]
         all_users = len(all_documents)
         active = len(

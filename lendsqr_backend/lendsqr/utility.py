@@ -93,7 +93,7 @@ def users_portfolio(request, db):
                 },
             ]
         }
-        users = db["users"].find(query)
+        users = db["users"].find(query, {"updatedAt": 0})
 
     else:
         users = db["users"].find({"guarantor": {"$exists": True}})
