@@ -129,7 +129,7 @@ CACHES = {
     }
 }
 
-CACHE_TTL = 60 * 30
+CACHE_TTL = 60 * 2
 
 GRIDFS_STORAGE_DB = "user_details"
 GRIDFS_STORAGE_COLLECTION = "images"

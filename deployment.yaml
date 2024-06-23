@@ -26,6 +26,8 @@ spec:
           value: ${PASSWORD}
         - name: CLUSTERNAME
           value: ${CLUSTERNAME}
+        - name: REDIS
+          value: redis-service
       imagePullSecrets:
       - name: ghcr-secret
 ---
@@ -57,3 +59,27 @@ spec:
           value: ${REACT_APP_MEDIA_URL}
       imagePullSecrets:
       - name: ghcr-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redis
+      tier: cache
+  template:
+    metadata:
+      labels:
+        app: redis
+        tier: cache  
+    spec:
+      containers:
+      - name: redis-cache
+        image: redis
+        ports:
+        - containerPort: 6379
+        
+      

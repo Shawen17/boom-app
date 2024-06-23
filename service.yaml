@@ -25,3 +25,17 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8000  # Backend container port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+    tier: cache
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
