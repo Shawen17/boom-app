@@ -21,6 +21,7 @@ def generate_cache_key(request):
 def users_portfolio(request, db):
     page = int(request.GET.get("page", 1))
     search = request.GET.get("search", "")
+    per_page = int(request.GET.get("pageSize", 20))
 
     if search:
         regex_pattern = f".*{search}.*"
@@ -97,7 +98,7 @@ def users_portfolio(request, db):
 
     else:
         users = db["users"].find({"guarantor": {"$exists": True}})
-    per_page = 20
+    # per_page = 20
     start_index = (page - 1) * per_page
     end_index = page * per_page
     all_documents = [{**doc, "_id": str(doc["_id"])} for doc in users]

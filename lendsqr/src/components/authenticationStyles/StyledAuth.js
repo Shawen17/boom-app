@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-
 export const Container = styled.div`
   height: 100%;
   width: 100%;
@@ -117,4 +116,11 @@ export const Desc = styled.span`
   text-transform: uppercase;
   color: #39cdcc;
   cursor: pointer;
+`;
+
+export const PageInput = styled.input`
+  width: 45px;
+  &:focus {
+    border: 2px solid #00308f;
+  }
 `;

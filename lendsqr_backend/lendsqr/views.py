@@ -242,6 +242,7 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
         cache_key = generate_cache_key(request)
         cached_result = r.get(cache_key)
         page = int(request.GET.get("page", 1))
+        per_page = int(request.GET.get("pageSize", 20))
         organization = (
             json.loads(request.GET.get("organization"))
             if "organization" in request.GET
@@ -272,7 +273,7 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
         users = db["users"].find(
             {"$and": [query]}, {"updatedAt": 0, "createdAt": 0, "lastActiveDate": 0}
         )
-        per_page = 20
+
         start_index = (page - 1) * per_page
         end_index = page * per_page
         if cached_result:

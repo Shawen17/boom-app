@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import SideBar from "../components/SideBar";
 import Users from "../components/Users";
@@ -35,19 +35,19 @@ const Right = styled.div`
 `;
 
 const Dashstats = styled.div`
-margin-left:0px;
-margin-bottom:20px;
-margin-top:20px;
-display:flex;
-align:items:center;
-justify-content:center;
-flex-wrap:wrap;
-padding:10px;
-flex:12;
-@media screen and (min-width:0px) and (max-width:568px){
-    flex-wrap:nowrap;
-    flex-basis:24%;
-}
+  margin-left: 0px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  display: flex;
+  align: items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10px;
+  flex: 12;
+  @media screen and (min-width: 0px) and (max-width: 568px) {
+    flex-wrap: nowrap;
+    flex-basis: 24%;
+  }
 `;
 
 const Stats = styled.div`
@@ -82,6 +82,7 @@ const StatDesc = styled.h5`
   color: #0050b5;
   margin-top: 5px;
 `;
+
 const StatNum = styled.h5`
   font-family: "Work Sans";
   font-style: normal;
@@ -94,16 +95,14 @@ const StatNum = styled.h5`
   opacity: 1;
 `;
 
-let PageSize = 20;
-
 const Dashboard = ({ logout }) => {
   window.title = "Dashboard";
   const token = localStorage.getItem("access");
-  const [searchValue, setSearchValue] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
   const [page, setPage] = useState(1);
   const [modal, setModal] = useState(false);
   const [error, setError] = useState("");
-  const [statusUpated, setStatusUpdated] = useState(false);
+  const [statusUpdated, setStatusUpdated] = useState(false);
   const [raw, setRaw] = useState({
     items: {
       users_paginated: [],
@@ -116,51 +115,57 @@ const Dashboard = ({ logout }) => {
   const [clicked, setClicked] = useState(false);
   const [inputs, setInputs] = useState({});
   const [filtered, setFiltered] = useState(0);
-
+  const PageSize = inputs.itemCount || 20;
   const [display, setDisplay] = useState(false);
 
-  const handleChange = (item) => {
-    setInputs(item);
-  };
+  const handleChange = useCallback(
+    (item) => {
+      setInputs(item);
+    },
+    [setInputs]
+  );
 
-  const onFilter = () => {
-    setFiltered(filtered + 1);
-  };
+  const onFilter = useCallback(() => {
+    setFiltered((prev) => prev + 1);
+  }, []);
 
-  const onReset = () => {
+  const onReset = useCallback(() => {
     setInputs({});
     setFiltered(0);
-  };
+  }, []);
 
-  const filterClick = () => {
-    setClicked(!clicked);
-  };
+  const filterClick = useCallback(() => {
+    setClicked((prev) => !prev);
+  }, []);
 
-  const onMenuClick = () => {
-    setDisplay(!display);
-  };
+  const onMenuClick = useCallback(() => {
+    setDisplay((prev) => !prev);
+  }, []);
 
-  const updateStatus = () => {
-    setStatusUpdated(!statusUpated);
-  };
+  const updateStatus = useCallback(() => {
+    setStatusUpdated((prev) => !prev);
+  }, []);
 
-  const nextPage = () => {
+  const nextPage = useCallback(() => {
     if (page < Math.ceil(raw.items.all_users / PageSize)) {
       setModal(true);
-      setPage(page + 1);
+      setPage((prev) => prev + 1);
     }
-  };
+  }, [page, raw.items.all_users, PageSize]);
 
-  const prevPage = () => {
+  const prevPage = useCallback(() => {
     if (page > 1) {
       setModal(true);
-      setPage(page - 1);
+      setPage((prev) => prev - 1);
     }
-  };
+  }, [page]);
 
-  const HandleInputChange = (event) => {
-    setSearchValue(event.target.value);
-  };
+  const HandleInputChange = useCallback(
+    (event) => {
+      setSearchValue(event.target.value);
+    },
+    [setSearchValue]
+  );
 
   useEffect(() => {
     const config = {
@@ -170,66 +175,48 @@ const Dashboard = ({ logout }) => {
         Accept: "application/json",
       },
     };
-    var search = "";
+    let search = "";
     if (searchValue.length >= 4) {
       search = searchValue;
     }
 
     if (token) {
-      try {
-        if (clicked && filtered) {
-          const profileKeys = ["userName", "status", "email", "phoneNumber"];
-          const organizationKeys = ["orgName"];
-          const profile = mergeFields(inputs, profileKeys);
-          const organization = mergeFields(inputs, organizationKeys);
+      const fetchData = async () => {
+        try {
+          if (clicked && filtered) {
+            const profileKeys = ["userName", "status", "email", "phoneNumber"];
+            const organizationKeys = ["orgName"];
+            const profile = mergeFields(inputs, profileKeys);
+            const organization = mergeFields(inputs, organizationKeys);
 
-          const config = {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Accept: "application/json",
-            },
-          };
-          axios
-            .get(
-              `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter?page=${page}`,
+            const response = await axios.get(
+              `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter?page=${page}&pageSize=${PageSize}`,
               {
                 params: {
                   profile: JSON.stringify({ profile }),
                   organization: JSON.stringify({ organization }),
                 },
-              },
+                ...config,
+              }
+            );
+            setModal(false);
+            setRaw({ items: response.data });
+          } else {
+            const response = await axios.get(
+              `${process.env.REACT_APP_LENDSQR_API_URL}/api/users?page=${page}&pageSize=${PageSize}&search=${search}`,
               config
-            )
-            .then((response) => {
-              setModal(false);
-              setRaw({ items: response.data });
-            })
-            .catch((error) => {
-              setModal(false);
-              setError(error);
-              logout();
-            });
-        } else {
-          axios
-            .get(
-              `${process.env.REACT_APP_LENDSQR_API_URL}/api/users?page=${page}&search=${search}`,
-              config
-            )
-            .then((res) => {
-              setModal(false);
-              setRaw({ items: res.data });
-            })
-            .catch((error) => {
-              setModal(false);
-              setError(error);
-              logout();
-            });
+            );
+            setModal(false);
+            setRaw({ items: response.data });
+          }
+        } catch (error) {
+          setModal(false);
+          setError(error);
+          logout();
         }
-      } catch (error) {
-        setModal(false);
-        setError(error);
-        logout();
-      }
+      };
+
+      fetchData();
     } else {
       logout();
     }
@@ -238,10 +225,11 @@ const Dashboard = ({ logout }) => {
     logout,
     token,
     searchValue,
-    statusUpated,
+    statusUpdated,
     filtered,
     inputs,
     clicked,
+    PageSize,
   ]);
 
   return (
@@ -308,14 +296,20 @@ const Dashboard = ({ logout }) => {
               <Users
                 page={page}
                 PageSize={PageSize}
-                totalCount={raw.items.all_users}
-                onFilter={onFilter}
-                filterClick={filterClick}
-                onReset={onReset}
-                prevPage={prevPage}
                 nextPage={nextPage}
+                prevPage={prevPage}
+                HandleInputChange={HandleInputChange}
+                filterClick={filterClick}
+                onFilter={onFilter}
+                clicked={clicked}
+                setClicked={setClicked}
+                filtered={filtered}
+                setFiltered={setFiltered}
+                onReset={onReset}
                 handleChange={handleChange}
+                statusUpdated={statusUpdated}
                 updateStatus={updateStatus}
+                inputs={inputs}
               />
             </div>
           </Right>
@@ -325,4 +319,8 @@ const Dashboard = ({ logout }) => {
   );
 };
 
-export default connect(null, { logout })(Dashboard);
+const mapDispatchToProps = (dispatch) => ({
+  logout: () => dispatch(logout()),
+});
+
+export default connect(null, mapDispatchToProps)(React.memo(Dashboard));

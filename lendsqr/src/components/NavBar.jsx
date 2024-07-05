@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import styled from "styled-components";
 import {
   Search,
@@ -158,57 +158,71 @@ const NavBar = (props) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (
-      props.details &&
-      props.details.profile &&
-      props.details.profile.avatar
-    ) {
+    if (props.details?.profile?.avatar) {
       const path = props.details.profile.avatar;
       const members = path.split("/").length;
-      if (members === 4) {
-        setProfilePicture(
-          `${process.env.REACT_APP_MEDIA_URL}${props.details.profile.avatar}`
-        );
-      } else {
-        setProfilePicture(`${props.details.profile.avatar}`);
-      }
+      setProfilePicture(
+        members === 4
+          ? `${process.env.REACT_APP_MEDIA_URL}${props.details.profile.avatar}`
+          : props.details.profile.avatar
+      );
     }
   }, [props.details]);
 
-  const handleDropDown = () => {
-    setToggle(!toggle);
-  };
+  const handleDropDown = useCallback(() => {
+    setToggle((prevToggle) => !prevToggle);
+  }, []);
 
-  const handlePictureChange = (file) => {
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      setProfilePicture(reader.result);
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `JWT ${localStorage.getItem("access")}`,
-          Accept: "application/json",
-        },
-      };
-      const body = { avatar: file, user_id: props.details._id };
-      try {
-        await axios
-          .put(
-            `${process.env.REACT_APP_LENDSQR_API_URL}/api/users`,
-            body,
-            config
-          )
-          .then((response) => response)
-          .catch((error) => error.response && setError(error.response.error));
-      } catch (error) {
-        if (error.response) {
-          setError(error.response.error);
+  const handlePictureChange = useCallback(
+    (file) => {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setProfilePicture(reader.result);
+        const config = {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `JWT ${localStorage.getItem("access")}`,
+            Accept: "application/json",
+          },
+        };
+        const body = { avatar: file, user_id: props.details._id };
+        try {
+          await axios
+            .put(
+              `${process.env.REACT_APP_LENDSQR_API_URL}/api/users`,
+              body,
+              config
+            )
+            .then((response) => response)
+            .catch((error) => error.response && setError(error.response.error));
+        } catch (error) {
+          if (error.response) {
+            setError(error.response.error);
+          }
         }
-      }
-    };
-    props.get_portfolio(props.details.profile.email);
-    reader.readAsDataURL(file);
-  };
+      };
+      props.get_portfolio(props.details.profile.email);
+      reader.readAsDataURL(file);
+    },
+    [props]
+  );
+  const navItems = useMemo(
+    () => (
+      <>
+        <Link to=" ">Docs</Link>
+        <NotificationsOutlined
+          style={{ height: 40, width: 40, marginRight: "6px" }}
+        />
+        {error || (
+          <ProfilePicture
+            currentPicture={profilePicture}
+            onPictureChange={handlePictureChange}
+          />
+        )}
+      </>
+    ),
+    [error, profilePicture, handlePictureChange]
+  );
 
   return (
     <Wrapper>
@@ -226,21 +240,7 @@ const NavBar = (props) => {
         <div className="hamburger">
           <Menu onClick={props.onMenuClick} />
         </div>
-        <Navlink>
-          <Link to=" ">Docs</Link>
-          <NotificationsOutlined
-            className="notify"
-            style={{ height: 40, width: 40, marginRight: "6px" }}
-          />
-          {error ? (
-            error
-          ) : (
-            <ProfilePicture
-              currentPicture={profilePicture}
-              onPictureChange={handlePictureChange}
-            />
-          )}
-        </Navlink>
+        <Navlink>{navItems}</Navlink>
 
         <DropDownContainer>
           <div className="sidebar-link nav" onClick={handleDropDown}>
@@ -263,14 +263,8 @@ const NavBar = (props) => {
     </Wrapper>
   );
 };
-const mapStateToProps = (state) => {
-  if (state.auth.user) {
-    return {
-      user: state.auth.user.first_name,
-      details: state.auth.portfolio,
-    };
-  } else {
-    return { user: "", details: "" };
-  }
-};
+const mapStateToProps = (state) => ({
+  user: state.auth.user.first_name || "",
+  details: state.auth.portfolio || {},
+});
 export default connect(mapStateToProps, { logout, get_portfolio })(NavBar);

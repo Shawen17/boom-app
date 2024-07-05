@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { Table } from "reactstrap";
 import { MoreVertOutlined, FilterListOutlined } from "@material-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { StatusUpdate } from "./utility/AdminAction";
 import axios from "axios";
 import { UserContext } from "./ContextManager";
+import { PageInput } from "./authenticationStyles/StyledAuth";
 
 const Users = (props) => {
   const PageSize = props.PageSize;
@@ -201,9 +202,16 @@ const Users = (props) => {
         <div>
           {props.page} of {Math.ceil(result.all_users / PageSize)}...
         </div>
+        per page{" "}
+        <PageInput
+          type="number"
+          name="itemCount"
+          value={inputs.itemCount || ""}
+          onChange={handleChange}
+        />
       </Paginate>
     </div>
   );
 };
 
-export default Users;
+export default React.memo(Users);

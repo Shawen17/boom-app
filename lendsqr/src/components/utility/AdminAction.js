@@ -23,7 +23,7 @@ export const StatusUpdate = async (action, status, id) => {
     );
     alert(`userID : ${id} status ${result}`);
   } catch (error) {
-    console.log(error);
+    alert(error.message);
   }
 };
 
