@@ -126,13 +126,9 @@ pipeline {
                 bat '''
                     docker run -p 6379:6379 -d --name redis-caching redis
                     echo Deploying...
+                    docker run --rm --network host ${LendsqrBackendImage} pytest
                     '''
-                script {
-                    
-                    LendsqrBackendImage.inside {
-                        bat ' docker run --rm --network host ${LendsqrBackendImage} pytest'
-                    }
-                }
+                
             }
         }
         // stage('Deploy Images to EKS Cluster'){
