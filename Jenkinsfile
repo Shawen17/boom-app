@@ -130,7 +130,7 @@ pipeline {
                 script {
                     
                     LendsqrBackendImage.inside {
-                        bat 'pytest'
+                        bat ' docker run --rm --network host ${LendsqrBackendImage} pytest'
                     }
                 }
             }

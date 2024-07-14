@@ -1,5 +1,4 @@
 import pytest
-from pytest_factoryboy import register
 from django.conf import settings
 
 
