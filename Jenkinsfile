@@ -123,8 +123,12 @@ pipeline {
         }
         stage('Test Backend Image') {
             steps {
+                bat '''
+                    docker run -p 6379:6379 -d --name redis-caching redis
+                    echo Deploying...
+                    '''
                 script {
-                    bat 'docker run -p 6379:6379 -d --name redis-caching redis'
+                    
                     LendsqrBackendImage.inside {
                         bat 'pytest'
                     }
