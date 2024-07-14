@@ -31,11 +31,11 @@ pipeline {
             }
         }
 
-        stage('Perform Test with Pytest') {
-            steps {
-                bat 'cd lendsqr_backend && pytest'
-            }
-        }
+        // stage('Perform Test with Pytest') {
+        //     steps {
+        //         bat 'cd lendsqr_backend && pytest'
+        //     }
+        // }
 
         stage('Build Docker Images in Parallel') {
             parallel {
@@ -118,6 +118,16 @@ pipeline {
                         }
                     }
                     parallel parallelStages
+                }
+            }
+        }
+        stage('Test Backend Image') {
+            steps {
+                script {
+                    bat 'docker run -p 6379:6379 -d --name redis-caching redis'
+                    LendsqrBackendImage.inside {
+                        bat 'pytest'
+                    }
                 }
             }
         }

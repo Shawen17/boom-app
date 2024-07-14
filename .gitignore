@@ -12,6 +12,6 @@ lendsqr_backend/.env
 lendsqr_backend/db.sqlite3
 lendsqr_backend/vercel.json
 lendsqr_backend/.pytest_cache
-lendsqr_backend/*.coverage
+lendsqr_backend/.coverage
 lendsqr_backend/htmlcov
 .pytest_cache
