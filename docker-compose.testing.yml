@@ -10,8 +10,11 @@ services:
         DB_USER: ${DB_USER}
         PASSWORD: ${PASSWORD}
         CLUSTERNAME: ${CLUSTERNAME}
+      depends_on:
+        - redis-test
+      entrypoint: ["pytest"]
 
-  redis-testing:
+  redis-test:
     image: redis
     container_name: redis-test
     ports:
