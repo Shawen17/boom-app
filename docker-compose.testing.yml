@@ -10,7 +10,7 @@ services:
         CLUSTERNAME: ${CLUSTERNAME}
       depends_on:
         - redis-test
-      entrypoint: ["pytest"]
+      command: ["pytest"]
 
   redis-test:
     image: redis
