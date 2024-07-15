@@ -125,7 +125,6 @@ pipeline {
              environment{
                 LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
                 LENDSQR_IMAGE = "${LendsqrImage}"
-                TAG = "${env.BUILD_ID}"
             }
             steps {
                 script{
@@ -134,15 +133,12 @@ pipeline {
                         "PASSWORD=${PASSWORD}",
                         "CLUSTERNAME=${CLUSTERNAME}",
                         "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
-                        "TAG=${TAG}"
-                        
                     ]){
-                        // bat '''
-                        // docker run -p 6379:6379 -d --name redis-test redis
-                        // echo Testing...
-                        // docker run --rm -e DB_USER=%DB_USER% -e PASSWORD=%PASSWORD% -e CLUSTERNAME=%CLUSTERNAME% --network host %LENDSQR_BACKEND_IMAGE% pytest
-                        // '''
-                        bat 'docker compose -f docker-compose.testing.yml up -d'
+                        bat '''
+                        docker run -p 6379:6379 -d --name redis-test redis
+                        echo Testing...
+                        docker run --rm -e DB_USER=%DB_USER% -e PASSWORD=%PASSWORD% -e CLUSTERNAME=%CLUSTERNAME% --network host %LENDSQR_BACKEND_IMAGE% pytest
+                        '''
                     }
                 }
             }
