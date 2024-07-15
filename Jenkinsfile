@@ -122,13 +122,28 @@ pipeline {
             }
         }
         stage('Test Backend Image') {
+             environment{
+                LENDSQR_BACKEND_IMAGE = "${LendsqrBackendImage}" 
+                LENDSQR_IMAGE = "${LendsqrImage}"
+                TAG = "${env.BUILD_ID}"
+            }
             steps {
-                bat '''
-                    docker run -p 6379:6379 -d --name redis-caching redis
-                    echo Deploying...
-                    docker run --rm --network host ${LendsqrBackendImage} pytest
-                    '''
-                
+                script{
+                    withEnv([
+                        "DB_USER=${DB_USER}",
+                        "PASSWORD=${PASSWORD}",
+                        "CLUSTERNAME=${CLUSTERNAME}",
+                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+                        "TAG=${TAG}"
+                        
+                    ]){
+                        bat '''
+                        docker run -p 6379:6379 -d --name redis-test redis
+                        echo Deploying...
+                        docker run --rm -e DB_USER=%DB_USER% -e PASSWORD=%PASSWORD% -e CLUSTERNAME=%CLUSTERNAME% --network host %LENDSQR_BACKEND_IMAGE% pytest
+                        '''
+                    }
+                }
             }
         }
         // stage('Deploy Images to EKS Cluster'){

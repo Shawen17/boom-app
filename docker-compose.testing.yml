@@ -1,0 +1,21 @@
+services:
+  lendsqr_backend:
+      image: ${LENDSQR_BACKEND_IMAGE}
+      container_name: "lendsqr_backend${TAG}"
+      ports:
+        - 8000:8000
+      networks:
+        - host
+      environment:
+        DB_USER: ${DB_USER}
+        PASSWORD: ${PASSWORD}
+        CLUSTERNAME: ${CLUSTERNAME}
+
+  redis-testing:
+    image: redis
+    container_name: redis-test
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
