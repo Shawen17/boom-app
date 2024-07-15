@@ -4,8 +4,6 @@ services:
       container_name: "lendsqr_backend${TAG}"
       ports:
         - 8000:8000
-      networks:
-        - host
       environment:
         DB_USER: ${DB_USER}
         PASSWORD: ${PASSWORD}
