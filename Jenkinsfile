@@ -43,11 +43,11 @@ pipeline {
                     steps {
                         script {
                             withEnv([
-                                "SECRET_KEY=${SECRET_KEY}",
-                                "HOST=${HOST}",
-                                "AUTH_PASSWORD=${AUTH_PASSWORD}",
-                                "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}",
-                                "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}",
+                                "SECRET_KEY=$SECRET_KEY",
+                                "HOST=$HOST",
+                                "AUTH_PASSWORD=$AUTH_PASSWORD",
+                                "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY",
+                                "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID",
                                 ]){
                                 bat 'docker compose -f docker-compose.build.yml build lendsqr_backend'
                             }
@@ -129,10 +129,10 @@ pipeline {
             steps {
                 script{
                     withEnv([
-                        "DB_USER=${DB_USER}",
-                        "PASSWORD=${PASSWORD}",
-                        "CLUSTERNAME=${CLUSTERNAME}",
-                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
+                        "DB_USER=$DB_USER",
+                        "PASSWORD=$PASSWORD",
+                        "CLUSTERNAME=$CLUSTERNAME",
+                        "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
                     ]){
                         bat '''
                         docker run -p 6379:6379 -d --name redis-test redis
@@ -216,14 +216,14 @@ pipeline {
                 
                 script {
                     withEnv([
-                        "DB_USER=${DB_USER}",
-                        "PASSWORD=${PASSWORD}",
-                        "CLUSTERNAME=${CLUSTERNAME}",
-                        "REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}",
-                        "REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}",
-                        "LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}",
-                        "LENDSQR_IMAGE=${LENDSQR_IMAGE}",
-                        "TAG=${TAG}"
+                        "DB_USER=$DB_USER",
+                        "PASSWORD=$PASSWORD",
+                        "CLUSTERNAME=$CLUSTERNAME",
+                        "REACT_APP_LENDSQR_API_URL=$REACT_APP_LENDSQR_API_URL",
+                        "REACT_APP_MEDIA_URL=$REACT_APP_MEDIA_URL",
+                        "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
+                        "LENDSQR_IMAGE=$LENDSQR_IMAGE",
+                        "TAG=$TAG"
                     ]) {
                         bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
