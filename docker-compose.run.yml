@@ -10,6 +10,7 @@ services:
       PASSWORD: ${PASSWORD}
       CLUSTERNAME: ${CLUSTERNAME}
       REDIS: redis-cache
+    read_only: true
       
 
   lendsqr:
@@ -20,6 +21,7 @@ services:
     environment:
       REACT_APP_LENDSQR_API_URL: ${REACT_APP_LENDSQR_API_URL}
       REACT_APP_MEDIA_URL: ${REACT_APP_MEDIA_URL}
+    read_only: true
 
   redis-cache:
     image: redis
@@ -27,6 +29,7 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    read_only: true
     

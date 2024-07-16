@@ -42,15 +42,15 @@ pipeline {
                 stage('Build lendsqr_backend Image') {
                     steps {
                         script {
-                            withEnv([
-                                "SECRET_KEY=$SECRET_KEY",
-                                "HOST=$HOST",
-                                "AUTH_PASSWORD=$AUTH_PASSWORD",
-                                "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY",
-                                "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID",
-                                ]){
+                            // withEnv([
+                            //     "SECRET_KEY=$SECRET_KEY",
+                            //     "HOST=$HOST",
+                            //     "AUTH_PASSWORD=$AUTH_PASSWORD",
+                            //     "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY",
+                            //     "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID",
+                            //     ]){
                                 bat 'docker compose -f docker-compose.build.yml build lendsqr_backend'
-                            }
+                            // }
                         }
                     }
                 }
@@ -128,17 +128,11 @@ pipeline {
             }
             steps {
                 script{
-                    // withCredentials([
-                    //     string(credentialsId: 'DB_USER', variable: 'DB_USER'),
-                    //     string(credentialsId: 'PASSWORD', variable: 'PASSWORD'),
-                    //     string(credentialsId: 'CLUSTERNAME', variable: 'CLUSTERNAME'),
-                        
-                        
-                    // ]){
-                        withEnv([
-                            "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
-                        ])
-                    // }
+                    
+                    withEnv([
+                        "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
+                    ])
+                    
                     {
                         bat '''
                         docker run -p 6379:6379 -d --name redis-test redis
@@ -222,11 +216,11 @@ pipeline {
                 
                 script {
                     withEnv([
-                        "DB_USER=$DB_USER",
-                        "PASSWORD=$PASSWORD",
-                        "CLUSTERNAME=$CLUSTERNAME",
-                        "REACT_APP_LENDSQR_API_URL=$REACT_APP_LENDSQR_API_URL",
-                        "REACT_APP_MEDIA_URL=$REACT_APP_MEDIA_URL",
+                        // "DB_USER=$DB_USER",
+                        // "PASSWORD=$PASSWORD",
+                        // "CLUSTERNAME=$CLUSTERNAME",
+                        // "REACT_APP_LENDSQR_API_URL=$REACT_APP_LENDSQR_API_URL",
+                        // "REACT_APP_MEDIA_URL=$REACT_APP_MEDIA_URL",
                         "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
                         "LENDSQR_IMAGE=$LENDSQR_IMAGE",
                         "TAG=$TAG"
