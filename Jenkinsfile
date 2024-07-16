@@ -42,7 +42,7 @@ pipeline {
                 stage('Build lendsqr_backend Image') {
                     steps {
                         script {
-                            withCredentials([
+                            withEnv([
                                 "SECRET_KEY=$SECRET_KEY",
                                 "HOST=$HOST",
                                 "AUTH_PASSWORD=$AUTH_PASSWORD",
@@ -128,17 +128,18 @@ pipeline {
             }
             steps {
                 script{
-                    withCredentials([
-                        string(credentialsId: 'DB_USER', variable: 'DB_USER'),
-                        string(credentialsId: 'PASSWORD', variable: 'PASSWORD'),
-                        string(credentialsId: 'CLUSTERNAME', variable: 'CLUSTERNAME'),
+                    // withCredentials([
+                    //     string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                    //     string(credentialsId: 'PASSWORD', variable: 'PASSWORD'),
+                    //     string(credentialsId: 'CLUSTERNAME', variable: 'CLUSTERNAME'),
                         
                         
-                    ]){
+                    // ]){
                         withEnv([
                             "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
                         ])
-                    }{
+                    // }
+                    {
                         bat '''
                         docker run -p 6379:6379 -d --name redis-test redis
                         echo Testing...
