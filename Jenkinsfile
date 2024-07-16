@@ -124,7 +124,7 @@ pipeline {
                         bat '''
                         docker run -p 6379:6379 -d --name redis-test redis
                         echo Testing...
-                        docker run --rm -e DB_USER=%DB_USER% -e PASSWORD=%PASSWORD% -e CLUSTERNAME=%CLUSTERNAME% --network host %LENDSQR_BACKEND_IMAGE% pytest
+                        docker run --rm -e REDIS=localhost  -e DB_USER=%DB_USER% -e PASSWORD=%PASSWORD% -e CLUSTERNAME=%CLUSTERNAME% --network host %LENDSQR_BACKEND_IMAGE% pytest
                         '''
                     }
                 }
