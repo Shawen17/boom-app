@@ -31,26 +31,13 @@ pipeline {
             }
         }
 
-        // stage('Perform Test with Pytest') {
-        //     steps {
-        //         bat 'cd lendsqr_backend && pytest'
-        //     }
-        // }
 
         stage('Build Docker Images in Parallel') {
             parallel {
                 stage('Build lendsqr_backend Image') {
                     steps {
                         script {
-                            // withEnv([
-                            //     "SECRET_KEY=$SECRET_KEY",
-                            //     "HOST=$HOST",
-                            //     "AUTH_PASSWORD=$AUTH_PASSWORD",
-                            //     "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY",
-                            //     "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID",
-                            //     ]){
-                                bat 'docker compose -f docker-compose.build.yml build lendsqr_backend'
-                            // }
+                           bat 'docker compose -f docker-compose.build.yml build lendsqr_backend'
                         }
                     }
                 }
