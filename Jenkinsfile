@@ -216,14 +216,14 @@ pipeline {
                 
                 script {
                     withEnv([
-                        "DB_USER=$DB_USER",
-                        "PASSWORD=$PASSWORD",
-                        "CLUSTERNAME=$CLUSTERNAME",
-                        "REACT_APP_LENDSQR_API_URL=$REACT_APP_LENDSQR_API_URL",
-                        "REACT_APP_MEDIA_URL=$REACT_APP_MEDIA_URL",
-                        "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
-                        "LENDSQR_IMAGE=$LENDSQR_IMAGE",
-                        "TAG=$TAG"
+                        'DB_USER=${DB_USER}',
+                        'PASSWORD=${PASSWORD}',
+                        'CLUSTERNAME=${CLUSTERNAME}',
+                        'REACT_APP_LENDSQR_API_URL=${REACT_APP_LENDSQR_API_URL}',
+                        'REACT_APP_MEDIA_URL=${REACT_APP_MEDIA_URL}',
+                        'LENDSQR_BACKEND_IMAGE=${LENDSQR_BACKEND_IMAGE}',
+                        'LENDSQR_IMAGE=${LENDSQR_IMAGE}',
+                        'TAG=${TAG}'
                     ]) {
                         bat '''
                         echo %DOCKERHUB_CREDENTIALS% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
