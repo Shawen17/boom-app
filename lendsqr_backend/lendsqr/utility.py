@@ -17,7 +17,7 @@ def generate_cache_key(request):
     return hashlib.md5(query_params_str.encode("utf-8")).hexdigest()
 
 
-@cache_page(CACHE_TTL)
+# @cache_page(CACHE_TTL)
 def users_portfolio(request, db):
     page = int(request.GET.get("page", 1))
     search = request.GET.get("search", "")
