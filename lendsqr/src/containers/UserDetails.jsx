@@ -109,7 +109,7 @@ const UserDetails = () => {
                 <ProfilePic
                   src={
                     user.profile.avatar.split("/").length === 4
-                      ? `${process.env.REACT_APP_MEDIA_URL}${user.profile.avatar}`
+                      ? `/${user.profile.avatar}`
                       : user.profile.avatar
                   }
                   alt="avatar"
