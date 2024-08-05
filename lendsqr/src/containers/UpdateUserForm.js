@@ -26,6 +26,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { motion } from "framer-motion";
 import Loading from "../components/Loading";
 
+const UPDATE_USER_URL = "/api/users";
+
 const UpdateUserForm = () => {
   document.title = "update user profile";
   const navigate = useNavigate();
@@ -146,11 +148,7 @@ const UpdateUserForm = () => {
 
     try {
       await axios
-        .put(
-          `${process.env.REACT_APP_LENDSQR_API_URL}/api/users/`,
-          body,
-          config
-        )
+        .put(UPDATE_USER_URL, body, config)
         .then((response) => {
           setLoading(false);
           setData(response.data);

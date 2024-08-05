@@ -152,6 +152,8 @@ const TopMenu = styled.div`
   }
 `;
 
+const USERS_URL = "/api/users";
+
 const NavBar = (props) => {
   const [toggle, setToggle] = useState(false);
   const [profilePicture, setProfilePicture] = useState(defaultPic);
@@ -188,11 +190,7 @@ const NavBar = (props) => {
         const body = { avatar: file, user_id: props.details._id };
         try {
           await axios
-            .put(
-              `${process.env.REACT_APP_LENDSQR_API_URL}/api/users`,
-              body,
-              config
-            )
+            .put(USERS_URL, body, config)
             .then((response) => response)
             .catch((error) => error.response && setError(error.response.error));
         } catch (error) {

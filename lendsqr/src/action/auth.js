@@ -24,7 +24,15 @@ import {
 } from "./types";
 import axios from "axios";
 
-const LOGIN_URL = "/auth/jwt/create/ ";
+const LOGIN_URL = "/auth/jwt/create/";
+const SIGNUP_URL = "/auth/users/";
+const VERIFY_URL = "/auth/jwt/verify/";
+const LOAD_USER_URL = "/auth/users/me/";
+const ADD_PORTFOLIO_URL = "/api/add-staff-portfolio/";
+const UPDATE_PORTFOLIO_URL = "/api/users/";
+const STAFF_STATUS_URL = "/api/get_staff_status/";
+const RESET_PASSWORD_URL = "/auth/users/reset_password/";
+const PASSWORD_RESET_CONFIRM_URL = "/auth/users/reset_password_confirm/";
 
 export const reset = () => async (dispatch) => {
   dispatch({
@@ -45,11 +53,7 @@ export const checkIsAuthenticated = () => async (dispatch) => {
     const body = JSON.stringify({ token: localStorage.getItem("access") });
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/auth/jwt/verify/`,
-        body,
-        config
-      );
+      const res = await axios.post(VERIFY_URL, body, config);
       if (res.data.code !== "token_not_valid") {
         await dispatch({
           type: AUTHENTICATION_SUCCESS,
@@ -88,10 +92,7 @@ export const load_user = () => async (dispatch) => {
     };
 
     try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/auth/users/me/`,
-        config
-      );
+      const res = await axios.get(LOAD_USER_URL, config);
       await dispatch({
         type: USER_LOADED_SUCCESS,
         payload: res.data,
@@ -119,12 +120,7 @@ export const login = (email, password) => async (dispatch) => {
   const body = JSON.stringify({ email, password });
 
   try {
-    const res = await axios.post(
-      LOGIN_URL,
-      // `${process.env.REACT_APP_LENDSQR_API_URL}/auth/jwt/create/`,
-      body,
-      config
-    );
+    const res = await axios.post(LOGIN_URL, body, config);
 
     await dispatch({
       type: LOGIN_SUCCESS,
@@ -164,11 +160,7 @@ export const signup =
     });
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/auth/users/`,
-        body,
-        config
-      );
+      const res = await axios.post(SIGNUP_URL, body, config);
       dispatch({
         type: SIGNUP_SUCCESS,
         payload: res.data,
@@ -189,11 +181,7 @@ export const add_portfolio = (data) => async (dispatch) => {
   };
 
   try {
-    await axios.post(
-      `${process.env.REACT_APP_LENDSQR_API_URL}/api/add-staff-portfolio/`,
-      data,
-      config
-    );
+    await axios.post(ADD_PORTFOLIO_URL, data, config);
     dispatch({
       type: ADD_USER_TO_PORTFOLIO_SUCCESS,
     });
@@ -215,11 +203,7 @@ export const update_portfolio = (data) => async (dispatch) => {
     };
 
     try {
-      await axios.put(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/api/users/`,
-        data,
-        config
-      );
+      await axios.put(UPDATE_PORTFOLIO_URL, data, config);
       dispatch({
         type: PORTFOLIO_UPDATE_SUCCESS,
       });
@@ -247,7 +231,7 @@ export const get_portfolio = (email) => async (dispatch) => {
 
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/api/add-staff-portfolio/`,
+        ADD_PORTFOLIO_URL,
         {
           params: { email: email },
         },
@@ -283,7 +267,7 @@ export const is_staff = (email) => async (dispatch) => {
 
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/api/get_staff_status/`,
+        STAFF_STATUS_URL,
         {
           params: { email: email },
         },
@@ -341,11 +325,7 @@ export const reset_password = (email) => async (dispatch) => {
   const body = JSON.stringify({ email });
 
   try {
-    await axios.post(
-      `${process.env.REACT_APP_LENDSQR_API_URL}/auth/users/reset_password/`,
-      body,
-      config
-    );
+    await axios.post(RESET_PASSWORD_URL, body, config);
     dispatch({
       type: PASSWORD_RESET_SUCCESS,
     });
@@ -365,11 +345,7 @@ export const password_reset_confirm =
     };
     const body = JSON.stringify({ uid, token, new_password, re_new_password });
     try {
-      await axios.post(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/auth/users/reset_password_confirm/`,
-        body,
-        config
-      );
+      await axios.post(PASSWORD_RESET_CONFIRM_URL, body, config);
       dispatch({
         type: PASSWORD_RESET_CONFIRM_SUCCESS,
       });

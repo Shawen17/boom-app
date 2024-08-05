@@ -95,6 +95,8 @@ const StatNum = styled.h5`
   opacity: 1;
 `;
 
+const ADVANCE_FILTER_URL = "/api/advance-filter";
+
 const Dashboard = ({ logout }) => {
   window.title = "Dashboard";
   const token = localStorage.getItem("access");
@@ -190,7 +192,7 @@ const Dashboard = ({ logout }) => {
             const organization = mergeFields(inputs, organizationKeys);
 
             const response = await axios.get(
-              `${process.env.REACT_APP_LENDSQR_API_URL}/api/advance-filter?page=${page}&pageSize=${PageSize}`,
+              `${ADVANCE_FILTER_URL}?page=${page}&pageSize=${PageSize}`,
               {
                 params: {
                   profile: JSON.stringify({ profile }),

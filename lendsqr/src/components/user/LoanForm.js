@@ -26,6 +26,8 @@ import Loading from "../Loading";
 import { logout } from "../../action/auth";
 import { connect } from "react-redux";
 
+export const LOAN_URL = "/api/loan/";
+
 const LoanForm = ({ user, update_portfolio, logout }) => {
   document.title = "new loan";
   const [error, setError] = useState("");
@@ -142,15 +144,9 @@ const LoanForm = ({ user, update_portfolio, logout }) => {
     };
 
     try {
-      await axios
-        .post(
-          `${process.env.REACT_APP_LENDSQR_API_URL}/api/loan/`,
-          data,
-          config
-        )
-        .then((response) => {
-          setMsg(response.data.message);
-        });
+      await axios.post(LOAN_URL, data, config).then((response) => {
+        setMsg(response.data.message);
+      });
     } catch (error) {
       if (error.response.status === 409) {
         setError(

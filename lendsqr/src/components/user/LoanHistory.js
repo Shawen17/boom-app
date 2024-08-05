@@ -8,6 +8,7 @@ import {
 } from "../menu/StyledMenu";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { LOAN_URL } from "./LoanForm";
 
 const LoanHistory = ({ user }) => {
   const [loans, setLoans] = useState([]);
@@ -31,7 +32,7 @@ const LoanHistory = ({ user }) => {
     try {
       axios
         .get(
-          `${process.env.REACT_APP_LENDSQR_API_URL}/api/loan/`,
+          LOAN_URL,
           {
             params: { email: user.profile.email },
           },

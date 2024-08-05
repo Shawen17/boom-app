@@ -25,6 +25,8 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Loading from "../components/Loading";
 
+const ADD_USER_URL = "/api/users";
+
 const AddUserForm = () => {
   document.title = "new user";
   const navigate = useNavigate();
@@ -130,11 +132,7 @@ const AddUserForm = () => {
     };
 
     try {
-      await axios.post(
-        `${process.env.REACT_APP_LENDSQR_API_URL}/api/users/`,
-        data,
-        config
-      );
+      await axios.post(ADD_USER_URL, data, config);
       setMsg("User added successfully");
     } catch (error) {
       if (error.response) {
