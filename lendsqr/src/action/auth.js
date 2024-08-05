@@ -24,6 +24,8 @@ import {
 } from "./types";
 import axios from "axios";
 
+const LOGIN_URL = "/auth/jwt/create/ ";
+
 export const reset = () => async (dispatch) => {
   dispatch({
     type: RESET_DONE,
@@ -118,7 +120,8 @@ export const login = (email, password) => async (dispatch) => {
 
   try {
     const res = await axios.post(
-      `${process.env.REACT_APP_LENDSQR_API_URL}/auth/jwt/create/`,
+      LOGIN_URL,
+      // `${process.env.REACT_APP_LENDSQR_API_URL}/auth/jwt/create/`,
       body,
       config
     );
