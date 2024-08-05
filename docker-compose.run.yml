@@ -5,6 +5,8 @@ services:
     ports:
       - 8000:8000
     restart: always
+    depends_on:
+      - redis-cache
     environment:
       DB_USER: ${DB_USER}
       PASSWORD: ${PASSWORD}
@@ -17,7 +19,10 @@ services:
     image: ${LENDSQR_IMAGE}
     container_name: "lendsqr${TAG}"
     ports:
-      - 3000:3000
+     - 3000:80
+      # - 3000:3000
+    depends_on:
+      - lendsqr_backend
     environment:
       REACT_APP_LENDSQR_API_URL: ${REACT_APP_LENDSQR_API_URL}
       REACT_APP_MEDIA_URL: ${REACT_APP_MEDIA_URL}

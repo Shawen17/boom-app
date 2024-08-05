@@ -19,7 +19,8 @@ pipeline {
         AUTH_PASSWORD=credentials('AUTH_PASSWORD')
         AWS_SECRET_ACCESS_KEY=credentials('AWS_SECRET_ACCESS_KEY')
         AWS_ACCESS_KEY_ID=credentials('AWS_ACCESS_KEY_ID')
-        REACT_APP_LENDSQR_API_URL=credentials('REACT_APP_LENDSQR_API_URL')
+        // REACT_APP_LENDSQR_API_URL=credentials('REACT_APP_LENDSQR_API_URL')
+        REACT_APP_LENDSQR_API_URL=''
         REACT_APP_MEDIA_URL=credentials('REACT_APP_MEDIA_URL')
         AWS_REGION = "eu-north-1"
     }
