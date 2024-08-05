@@ -208,7 +208,7 @@ pipeline {
                         // "PASSWORD=$PASSWORD",
                         // "CLUSTERNAME=$CLUSTERNAME",
                         // "REACT_APP_LENDSQR_API_URL=$REACT_APP_LENDSQR_API_URL",
-                        // "REACT_APP_MEDIA_URL=$REACT_APP_MEDIA_URL",
+                        "REACT_APP_MEDIA_URL=$REACT_APP_MEDIA_URL",
                         "LENDSQR_BACKEND_IMAGE=$LENDSQR_BACKEND_IMAGE",
                         "LENDSQR_IMAGE=$LENDSQR_IMAGE",
                         "TAG=$TAG"
