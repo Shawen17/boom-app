@@ -186,13 +186,13 @@ pipeline {
                 '''
             }
         }
-        stage('Remove All Images') {
-            steps {
-                bat '''
-                    powershell -Command " docker image rm -f $(docker image ls -q)"
-                '''
-            }
-        }
+        // stage('Remove All Images') {
+        //     steps {
+        //         bat '''
+        //             powershell -Command " docker image rm -f $(docker image ls -q)"
+        //         '''
+        //     }
+        // }
         
         stage('Run Containers') {
             environment{
