@@ -12,6 +12,7 @@ import { connect } from "react-redux";
 import ProfilePicture from "./ProfilePicture";
 import defaultPic from "../components/asset/default_profile_pic.png";
 import axios from "axios";
+import { MEDIA_URL } from "./utility/Utility";
 
 const Wrapper = styled.div`
   display: flex;
@@ -165,7 +166,7 @@ const NavBar = (props) => {
       const members = path.split("/").length;
       setProfilePicture(
         members === 4
-          ? `${process.env.REACT_APP_MEDIA_URL}${props.details.profile.avatar}`
+          ? `${MEDIA_URL}${props.details.profile.avatar}`
           : props.details.profile.avatar
       );
     }

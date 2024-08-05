@@ -31,6 +31,7 @@ import {
   Tabs,
   TabDesc,
 } from "../components/menu/StyledMenu";
+import { MEDIA_URL } from "../components/utility/Utility";
 
 const UserDetails = () => {
   window.title = "User-details";
@@ -109,7 +110,7 @@ const UserDetails = () => {
                 <ProfilePic
                   src={
                     user.profile.avatar.split("/").length === 4
-                      ? `${user.profile.avatar}`
+                      ? `${MEDIA_URL}${user.profile.avatar}`
                       : user.profile.avatar
                   }
                   alt="avatar"
