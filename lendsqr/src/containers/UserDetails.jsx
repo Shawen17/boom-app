@@ -109,7 +109,7 @@ const UserDetails = () => {
                 <ProfilePic
                   src={
                     user.profile.avatar.split("/").length === 4
-                      ? `/${user.profile.avatar}`
+                      ? `https://shawenmedia.s3.amazonaws.com${user.profile.avatar}`
                       : user.profile.avatar
                   }
                   alt="avatar"
