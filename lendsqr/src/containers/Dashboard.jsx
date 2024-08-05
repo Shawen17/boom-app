@@ -96,6 +96,7 @@ const StatNum = styled.h5`
 `;
 
 const ADVANCE_FILTER_URL = "/api/advance-filter";
+const USERS_URL = "/api/users";
 
 const Dashboard = ({ logout }) => {
   window.title = "Dashboard";
@@ -205,7 +206,7 @@ const Dashboard = ({ logout }) => {
             setRaw({ items: response.data });
           } else {
             const response = await axios.get(
-              `${process.env.REACT_APP_LENDSQR_API_URL}/api/users?page=${page}&pageSize=${PageSize}&search=${search}`,
+              `${USERS_URL}?page=${page}&pageSize=${PageSize}&search=${search}`,
               config
             );
             setModal(false);
