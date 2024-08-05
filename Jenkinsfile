@@ -86,7 +86,7 @@ pipeline {
                                     def fullImageName = "${IMAGE_NAME}/boom-app-job-${service}:${env.BUILD_ID}"
                                     
                                     // Tag the image
-                                    bat "docker tag ${imageId} ${fullImageName}"
+                                    bat "docker tag boom-app-job-${service}:${env.BUILD_ID} ${fullImageName}"
 
                                     // Push the image
                                     bat "docker push ${fullImageName}"
