@@ -20,12 +20,22 @@ services:
     container_name: "lendsqr${TAG}"
     ports:
      - 3000:80
-      # - 3000:3000
     depends_on:
       - lendsqr_backend
     environment:
       REACT_APP_LENDSQR_API_URL: ${REACT_APP_LENDSQR_API_URL}
       REACT_APP_MEDIA_URL: ${REACT_APP_MEDIA_URL}
+
+
+  metrics-server:
+    image: metrics-server:latest
+    container_name: metrics-server
+    build:
+      context: ./lendsqr
+      dockerfile: Dockerfile.metrics
+    ports:
+      - 3002:3002
+    
     
 
   redis-cache:
@@ -36,5 +46,40 @@ services:
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    ports:
+      - 9121:9121
+    environment:
+      REDIS_ADDR: "redis://redis-container:6379"
+    depends_on:
+      - redis-cache
     
     
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+    ports:
+      - 9090:9090
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3001:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:

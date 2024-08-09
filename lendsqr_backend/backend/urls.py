@@ -14,6 +14,7 @@ urlpatterns = [
     path("api/get_staff_status/", views.get_staff_status, name="staff_staus"),
     path("api/add-staff-portfolio/", views.assign_user_to_portfolio, name="porfolio"),
     path("api/loan/", views.new_loan, name="loan"),
+    path("prometheus/", include("django_prometheus.urls")),
 ]
 
 if settings.DEBUG:

@@ -45,3 +45,4 @@ pytest
 pytest-django
 pydantic
 django-redis
+prometheus-client
