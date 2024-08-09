@@ -4,7 +4,7 @@ global:
 scrape_configs:
   - job_name: 'lendsqr_backend'
     static_configs:
-      - targets: ['lendsqr_backend:8000']
+      - targets: ['localhost:8000']
     relabel_configs:
       - source_labels: [__address__] 
         regex: "([^:]+):\\d+"
