@@ -223,6 +223,7 @@ CORS_ORIGIN_WHITELIST = [
     "https://lendsqr-backend.vercel.app",
     "http://localhost:3000",
     "https://a150f97ebbba34795aa15c75de625aff-569107307.eu-north-1.elb.amazonaws.com",
+    "http://lendsqr_backend"
 ]
 
 AUTH_USER_MODEL = "lendsqr.User"
