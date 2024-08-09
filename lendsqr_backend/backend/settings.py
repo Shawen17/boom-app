@@ -21,6 +21,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "lendsqr-backend.vercel.app",
     "adedddccccedf4f10b8aa1c2c9d31cdd-1391532181.eu-north-1.elb.amazonaws.com",
+    "lendsqr_backend",
 ]
 
 
