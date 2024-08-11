@@ -34,5 +34,7 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Set the command to run the application
-CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "backend.wsgi:application"]
+# CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "backend.wsgi:application"]
+CMD gunicorn -c ./gunicorn_config.py backend.wsgi:application
+
 

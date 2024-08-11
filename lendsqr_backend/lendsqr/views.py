@@ -263,12 +263,12 @@ def advance_filter(request: dict[str, Any]) -> dict[str, Any]:
                 for i, j in value.items():
                     if j != "":
                         query_key = f"profile.{i}"
-                        query[query_key] = j
+                        query[query_key] = {"$regex": j, "$options": "i"}
             if key == "organization" and len(value) > 0:
                 for i, j in value.items():
                     if j != "":
                         query_key = f"organization.{i}"
-                        query[query_key] = j
+                        query[query_key] = {"$regex": j, "$options": "i"}
 
         users = db["users"].find(
             {"$and": [query]}, {"updatedAt": 0, "createdAt": 0, "lastActiveDate": 0}

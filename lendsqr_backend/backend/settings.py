@@ -25,6 +25,10 @@ ALLOWED_HOSTS = [
 ]
 
 
+
+USE_X_FORWARDED_HOST = True
+
+PROMETHEUS_EXPORT_MIGRATIONS = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -55,6 +59,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
+
+
 
 ROOT_URLCONF = "backend.urls"
 
@@ -223,7 +229,7 @@ CORS_ORIGIN_WHITELIST = [
     "https://lendsqr-backend.vercel.app",
     "http://localhost:3000",
     "https://a150f97ebbba34795aa15c75de625aff-569107307.eu-north-1.elb.amazonaws.com",
-    "http://lendsqr_backend"
+    "http://lendsqr_backend:8000"
 ]
 
 AUTH_USER_MODEL = "lendsqr.User"
