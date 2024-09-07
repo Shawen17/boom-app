@@ -35,20 +35,21 @@ const LoanForm = ({ user, update_portfolio, logout }) => {
   const [msg, setMsg] = useState("");
   const [click, setClicked] = useState(false);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const calculateLoanRepayment = (loanAmount, interestRate, months) => {
+      if (inputs.amount && inputs.duration) {
+        const monthlyInterestRate = interestRate / 100 / 12;
 
-  const handleChange = (event) => {
-    setError("");
-    setMsg("");
+        const monthlyPayment =
+          (loanAmount * monthlyInterestRate) /
+          (1 - Math.pow(1 + monthlyInterestRate, -months));
 
-    const { name, value } = event.target;
+        const totalRepayment = monthlyPayment * months;
 
-    setInputs((prevInputs) => ({
-      ...prevInputs,
-      [name]: value,
-    }));
-
-    if (name === "amount" || name === "duration") {
+        return totalRepayment.toFixed(2);
+      }
+    };
+    if (inputs.amount && inputs.duration) {
       const repayment = calculateLoanRepayment(
         inputs.amount || 0,
         15,
@@ -60,6 +61,18 @@ const LoanForm = ({ user, update_portfolio, logout }) => {
         loanRepayment: repayment,
       }));
     }
+  }, [inputs.amount, inputs.duration]);
+
+  const handleChange = (event) => {
+    setError("");
+    setMsg("");
+
+    const { name, value } = event.target;
+
+    setInputs((prevInputs) => ({
+      ...prevInputs,
+      [name]: value,
+    }));
   };
 
   const profileKeys = ["bvn", "currency"];
@@ -88,20 +101,6 @@ const LoanForm = ({ user, update_portfolio, logout }) => {
     "bank",
     "amount",
   ];
-
-  const calculateLoanRepayment = (loanAmount, interestRate, months) => {
-    if (inputs.amount && inputs.duration) {
-      const monthlyInterestRate = interestRate / 100 / 12;
-
-      const monthlyPayment =
-        (loanAmount * monthlyInterestRate) /
-        (1 - Math.pow(1 + monthlyInterestRate, -months));
-
-      const totalRepayment = monthlyPayment * months;
-
-      return totalRepayment.toFixed(2);
-    }
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -306,11 +305,7 @@ const LoanForm = ({ user, update_portfolio, logout }) => {
                     type="number"
                     step="0.01"
                     name="loanRepayment"
-                    defaultValue={calculateLoanRepayment(
-                      inputs.amount,
-                      5,
-                      inputs.duration
-                    )}
+                    defaultValue={inputs.loanRepayment}
                     readOnly
                   />
                 </SearchContainer>

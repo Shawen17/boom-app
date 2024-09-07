@@ -12,6 +12,10 @@ services:
       PASSWORD: ${PASSWORD}
       CLUSTERNAME: ${CLUSTERNAME}
       REDIS: redis-cache
+      REDIS_HOST: redis-server
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_METRICS_KEY: prometheus_metrics
     
       
 

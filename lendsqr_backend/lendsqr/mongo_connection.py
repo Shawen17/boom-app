@@ -1,6 +1,6 @@
-# import pymongo
-# import os
-# from contextlib import contextmanager
+import pymongo
+import os
+from contextlib import contextmanager
 
 
 # def connect_and_search():
@@ -12,36 +12,131 @@
 #         f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority"
 #     )
 
-#     try:
-#         db = client["user_details"]
-#         search = "seun"
-#         # collection = db["users"]
-#         # Create the index if it doesn't exist
-#         index_name = "profile.firstName_text_profile.lastName_text_organization.orgName_text_organization.officeEmail_text"
-#         # collection.drop_index(index_name)
-#         if index_name not in db.users.index_information():
-#             db.users.create_index(
-#                 {
-#                     "profile.firstName": "text",
-#                     "profile.lastName": "text",
-#                     "organization.orgName": "text",
-#                     "organization.officeEmail": "text",
-#                 }
-#             )
-
-#         # Perform the search
-#         result = db.users.find({"$text": {"$search": search}})
-
-#         # Print the results
-#         for doc in result:
-#             print(doc)
-#     finally:
-#         client.close()
+#     db = client["user_details"]
+#     collection = db["loans"]
 
 
-# # Run the function
-# a = connect_and_search()
-# print(a)
+# Example usage
+
+
+# try:
+#     result = list(collection.aggregate(create_pipeline(20, 20)))
+#     return result
+# except Exception as e:
+#     print(e)
+
+# finally:
+#     client.close()
+
+
+def add_nested_field_with_default_value(field_path, default_value="111111111111"):
+    try:
+        # Connect to MongoDB
+        db_user = "shawen17"  # os.getenv("DB_USER")
+        db_password = "Shawenbaba1"  # os.getenv("PASSWORD")
+        db_cluster = "shawencluster"  # os.getenv("CLUSTERNAME")
+
+        client = pymongo.MongoClient(
+            f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority"
+        )
+
+        db = client["user_details"]
+        collection = db["loans"]
+
+        # Create the update query
+        # update_query = {"$set": {field_path: default_value}}
+        # result = collection.update_many(
+        #     {
+        #         field_path: {"$exists": False}
+        #     },  # Match documents where the field does not exist
+        #     update_query,
+        # )
+
+        update_query = {"$unset": {field_path: ""}}
+
+        # Update all documents to remove the nested field
+        result = collection.update_many({}, update_query)
+
+        print(
+            f"Matched {result.matched_count} documents and modified {result.modified_count} documents."
+        )
+    except Exception as e:
+        print(e)
+
+    finally:
+        client.close()
+
+
+def remove_duplicate_loans():
+    db_user = "shawen17"  # os.getenv("DB_USER")
+    db_password = "Shawenbaba1"  # os.getenv("PASSWORD")
+    db_cluster = "shawencluster"  # os.getenv("CLUSTERNAME")
+
+    client = pymongo.MongoClient(
+        f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority"
+    )
+
+    db = client["user_details"]
+    collection = db["users"]
+
+    try:
+
+        # Find duplicates by grouping based on loan.email
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$profile.email",
+                    "uniqueIds": {"$addToSet": "$_id"},
+                    "count": {"$sum": 1},
+                }
+            },
+            {"$match": {"count": {"$gt": 1}}},
+        ]
+
+        duplicates = list(collection.aggregate(pipeline))
+
+        for doc in duplicates:
+            # Remove all but one of the duplicate documents
+            doc["uniqueIds"].pop(0)  # Keep one document and remove the rest
+            collection.delete_many({"_id": {"$in": doc["uniqueIds"]}})
+
+        print("Duplicate documents removed successfully.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        client.close()
+
+
+remove_duplicate_loans()
+
+
+# add_nested_field_with_default_value("loan.bvn")
+# try:
+#     db = client["user_details"]
+#     search = "seun"
+#     # collection = db["users"]
+#     # Create the index if it doesn't exist
+#     index_name = "profile.firstName_text_profile.lastName_text_organization.orgName_text_organization.officeEmail_text"
+#     # collection.drop_index(index_name)
+#     if index_name not in db.users.index_information():
+#         db.users.create_index(
+#             {
+#                 "profile.firstName": "text",
+#                 "profile.lastName": "text",
+#                 "organization.orgName": "text",
+#                 "organization.officeEmail": "text",
+#             }
+#         )
+
+#     # Perform the search
+#     result = db.users.find({"$text": {"$search": search}})
+
+#     # Print the results
+#     for doc in result:
+#         print(doc)
+
+
+# Run the function
 
 
 # @contextmanager

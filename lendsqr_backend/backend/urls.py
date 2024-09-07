@@ -6,6 +6,8 @@ from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # path("", include("django_prometheus.urls")),
+    path("metrics", views.metrics_view, name="metrics"),
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("api/users", views.users, name="users"),
@@ -14,7 +16,6 @@ urlpatterns = [
     path("api/get_staff_status/", views.get_staff_status, name="staff_staus"),
     path("api/add-staff-portfolio/", views.assign_user_to_portfolio, name="porfolio"),
     path("api/loan/", views.new_loan, name="loan"),
-    path("", include("django_prometheus.urls")),
 ]
 
 if settings.DEBUG:

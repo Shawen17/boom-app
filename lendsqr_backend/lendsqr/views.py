@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
+from django.http import HttpResponse
 import json
 from .models import User, LoanModel
 import os
@@ -11,16 +12,18 @@ from rest_framework.permissions import IsAuthenticated
 import boto3
 from dotenv import load_dotenv
 from typing import Any
-from .utility import generate_cache_key, users_portfolio
-import redis
+from .utility import generate_cache_key, users_portfolio, r, aggregate_metrics
 
 
 load_dotenv()
 
-r = redis.Redis(host=os.getenv("REDIS"), port=6379, db=0)
-
 
 db = settings.MONGO_DB
+
+
+def metrics_view(request):
+    data = aggregate_metrics()
+    return HttpResponse(data, content_type="text/plain")
 
 
 @permission_classes([IsAuthenticated])

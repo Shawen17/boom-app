@@ -153,6 +153,7 @@ const Dashboard = ({ logout }) => {
     if (page < Math.ceil(raw.items.all_users / PageSize)) {
       setModal(true);
       setPage((prev) => prev + 1);
+      window.scrollTo({ top: 300, behavior: "smooth" });
     }
   }, [page, raw.items.all_users, PageSize]);
 
@@ -160,6 +161,7 @@ const Dashboard = ({ logout }) => {
     if (page > 1) {
       setModal(true);
       setPage((prev) => prev - 1);
+      window.scrollTo({ top: 300, behavior: "smooth" });
     }
   }, [page]);
 
@@ -268,26 +270,26 @@ const Dashboard = ({ logout }) => {
               </h3>
               <Dashstats>
                 <Stats>
-                  <StatIcon src="/static/icons/user.PNG" alt="user" />
+                  <StatIcon src="/static/icons/user.png" alt="user" />
                   <StatDesc>users</StatDesc>
                   <StatNum>{raw.items.all_users}</StatNum>
                 </Stats>
                 <Stats>
                   <StatIcon
-                    src="/static/icons/user_active.PNG"
+                    src="/static/icons/user_active.png"
                     alt="active icon"
                   />
                   <StatDesc>ACTIVE USERS</StatDesc>
                   <StatNum>{raw.items.active}</StatNum>
                 </Stats>
                 <Stats>
-                  <StatIcon src="/static/icons/user_loan.PNG" alt="loan icon" />
+                  <StatIcon src="/static/icons/user_loan.png" alt="loan icon" />
                   <StatDesc>USERS WITH LOANS</StatDesc>
                   <StatNum>{raw.items.loan}</StatNum>
                 </Stats>
                 <Stats>
                   <StatIcon
-                    src="/static/icons/user_savings.PNG"
+                    src="/static/icons/user_savings.png"
                     alt="savings icon"
                   />
                   <StatDesc>USERS WITH SAVINGS</StatDesc>

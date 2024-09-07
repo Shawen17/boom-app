@@ -2,7 +2,9 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
-import pymongo
+from  pymongo import MongoClient, ASCENDING, IndexModel
+# from django_prometheus.redis_backend import RedisMetrics
+import redis
 
 
 load_dotenv()
@@ -23,6 +25,16 @@ ALLOWED_HOSTS = [
     "adedddccccedf4f10b8aa1c2c9d31cdd-1391532181.eu-north-1.elb.amazonaws.com",
     "lendsqr_backend",
 ]
+
+# REDIS_HOST = os.getenv("REDIS") 
+# REDIS_PORT = 6379
+# REDIS_DB = 0
+# REDIS_METRICS_KEY = 'prometheus_metrics'
+
+# redis_connection = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+
+# # Use Redis for Prometheus metrics storage
+# PROMETHEUS_REDIS_METRICS = RedisMetrics(redis_connection, redis_key=REDIS_METRICS_KEY)
 
 
 
@@ -49,7 +61,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    # 'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    "backend.middleware.MetricsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -57,7 +70,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
+    # 'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 
@@ -110,14 +123,51 @@ db_user = os.getenv("DB_USER")
 db_password = os.getenv("PASSWORD")
 db_cluster = os.getenv("CLUSTERNAME")
 
-MONGO_CLIENT = pymongo.MongoClient(
+MONGO_CLIENT = MongoClient(
     f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority"
 )
 MONGO_DB = MONGO_CLIENT["user_details"]
 
+indexes_to_create = [
+    IndexModel([("profile.email", ASCENDING)]),
+    IndexModel([("profile.firstName", ASCENDING)]),
+    IndexModel([("profile.lastName", ASCENDING)]),
+    IndexModel([("profile.userName", ASCENDING)]),
+    IndexModel([("profile.status", ASCENDING)]),
+    IndexModel([("organization.orgName", ASCENDING)]),
+    IndexModel([("organization.sector", ASCENDING)]),
+]
+
+# Function to check if an index exists on a specific field
+def index_exists(collection, field):
+    for index in collection.list_indexes():
+        if field in index['key']:
+            return True
+    return False
+
+collection = MONGO_DB['users']
+
+# List of fields to check
+fields_to_check = ["profile.email", "profile.firstName","profile.lastName","profile.userName",
+                     "profile.status","organization.orgname","organization.sector"]
+
+# Check if the indexes exist and create them if they don't
+indexes_needed = []
+for field, index_model in zip(fields_to_check, indexes_to_create):
+    if not index_exists(collection, field):
+        indexes_needed.append(index_model)
+
+# Create indexes if necessary
+if indexes_needed:
+    collection.create_indexes(indexes_needed)
+
+print("Index check and creation process completed.")
+
+
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django_prometheus.db.backends.postgresql",
         "NAME": "railway",
         "USER": "postgres",
         "PASSWORD": os.getenv("AUTH_PASSWORD"),
@@ -128,7 +178,7 @@ DATABASES = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
+        "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
         "LOCATION": f"redis://{os.getenv("REDIS")}:6379/1",
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
         "KEY_PREFIX": "example",

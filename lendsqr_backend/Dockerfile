@@ -14,6 +14,10 @@ ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV REDIS_HOST=redis-server
+ENV REDIS_PORT=6379
+ENV REDIS_DB=0
+ENV REDIS_METRICS_KEY=prometheus_metrics
 
 # Set the working directory in the container
 WORKDIR /app
@@ -35,6 +39,7 @@ EXPOSE 8000
 
 # Set the command to run the application
 # CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "backend.wsgi:application"]
+
 CMD gunicorn -c ./gunicorn_config.py backend.wsgi:application
 
 
